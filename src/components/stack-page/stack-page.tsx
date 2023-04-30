@@ -7,7 +7,7 @@ import { ElementStates } from "../../types/element-states";
 import { nanoid } from "nanoid";
 import { Circle } from "../ui/circle/circle";
 import { SHORT_DELAY_IN_MS } from "../../constants/delays";
-import { Stack } from "../../classes/stack";
+import { Stack } from "./stack";
 
 interface IStringElement{
   string: string;
