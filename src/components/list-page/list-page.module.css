@@ -1,0 +1,35 @@
+.controlContainer{
+    display: flex;
+    width: fit-content;
+    flex-wrap: wrap;
+    max-width: 952px;
+    margin: 0 auto;
+  }
+  
+  .input{
+    max-width: 204px;
+    margin-bottom: 36px;
+    margin-right: 12px;
+  }
+  
+  .button{
+   margin-right: 12px;
+  }
+  
+  .circlesContainer{
+    display: flex;
+    width: fit-content;
+    max-width: 100%;
+    flex-direction: row;
+    flex-flow: wrap;
+    margin: 82px auto 0;
+  }
+  
+  .itemJsxArray{
+    display: flex;
+    align-items: center;
+  }
+  
+  .circle{
+    margin: 0 16px;
+  }

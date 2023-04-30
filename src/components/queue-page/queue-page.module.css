@@ -1,0 +1,41 @@
+.controlContainer{
+    display: flex;
+    width: fit-content;
+    margin: 0 auto;
+  }
+  
+  .input{
+    min-width: 377px;
+    margin-right: 12px;
+  }
+  
+  .buttonAdd{
+    min-width: 121px;
+    margin-right: 12px;
+  }
+  
+  .buttonDelette{
+    min-width: 108px;
+    margin-right: 80px;
+  }
+  
+  .buttonReset{
+    min-width: 119px;
+  }
+  
+  .circlesContainer{
+    display: flex;
+    width: fit-content;
+    max-width: 944px;
+    flex-direction: row;
+    flex-flow: wrap;
+    margin: 50px auto 0;
+  }
+  
+  .circle{
+    margin-right: 16px;
+  }
+  
+  .circle:last-child{
+    margin-right: 0;
+  }

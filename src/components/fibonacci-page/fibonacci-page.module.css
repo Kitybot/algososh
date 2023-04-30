@@ -1,0 +1,36 @@
+.elementsContainer{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+  }
+  
+  .input{
+    max-width: 377px;
+    margin-right: 12px;
+  }
+  
+  .numberContainer{
+    display: flex;
+    width: fit-content;
+    max-width: 944px;
+    flex-direction: row;
+    flex-flow: wrap;
+    margin: 46px auto 0;
+  }
+  
+  .button{
+    width: 178px;
+  }
+  
+  .circle{
+    margin-right: 16px;
+    margin-bottom: 78px;
+  }
+  
+  .circle:nth-child(10n){
+    margin-right: 0;
+  }
+  
+  .circle:last-child{
+    margin-right: 0;
+  }
