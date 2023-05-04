@@ -23,6 +23,7 @@ interface IState{
 
 export const StackPage: React.FC = () => {
 
+  const [value, setValue] = useState(''); 
   const [ newRender, setNewRender ] = useState<boolean>(false);
   const [ isTextInInput, setIsTextInInput ] = useState<boolean>(false);
   const [ state, setState ] = useState<IState>({
@@ -121,6 +122,7 @@ export const StackPage: React.FC = () => {
           maxLength={4}
           isLimitText={true}
           onChange={checkTextInInput}
+          value={value}
           disabled={state.isAlgoritmWork}
         />
         <Button

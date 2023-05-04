@@ -27,6 +27,7 @@ interface IState {
 }
 
 export const QueuePage: React.FC = () => {
+  const [value, setValue] = useState(''); 
   // состояние для проведения принудительного рендеринга
   const [ , setNewRender ] = useState<string>('');
   // является ли значение поля input пустой строкой или он заполнен
@@ -207,6 +208,7 @@ export const QueuePage: React.FC = () => {
           isLimitText={true}
           disabled={isQueueFull() || state.isAlgoritmWork}
           onChange={handleChangeInput}
+          value={value}
         />
         <Button
           text="Добавить"

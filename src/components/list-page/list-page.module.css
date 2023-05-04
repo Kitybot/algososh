@@ -1,35 +1,46 @@
-.controlContainer{
-    display: flex;
-    width: fit-content;
-    flex-wrap: wrap;
-    max-width: 952px;
-    margin: 0 auto;
-  }
-  
-  .input{
-    max-width: 204px;
-    margin-bottom: 36px;
-    margin-right: 12px;
-  }
-  
-  .button{
-   margin-right: 12px;
-  }
-  
-  .circlesContainer{
-    display: flex;
-    width: fit-content;
-    max-width: 100%;
-    flex-direction: row;
-    flex-flow: wrap;
-    margin: 82px auto 0;
-  }
-  
-  .itemJsxArray{
-    display: flex;
-    align-items: center;
-  }
-  
-  .circle{
-    margin: 0 16px;
-  }
+.set {
+  margin: 0 auto;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 12px;
+  width: 952px;
+}
+
+.buttonSmall {
+  width: 175px;
+}
+
+.buttonBig {
+  width: 362px;
+}
+
+.input {
+  width: 240px;
+}
+
+.list {
+  composes: list from '../fibonacci-page/fibonacci-page.module.css';
+  width: 100%;
+  margin-top: 120px;
+}
+
+.circle {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 25px;
+  position: relative;
+}
+
+.smallCircle {
+  position: absolute;
+  top: -65px;
+  left: 11px;
+}
+
+.smallCircleBottom {
+  position: absolute;
+  top: 117px;
+  left: 12px;
+}
