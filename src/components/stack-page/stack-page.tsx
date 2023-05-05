@@ -1,154 +1,131 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, FormEvent} from "react";
+import styles from './stack-page.module.css';
 import { SolutionLayout } from "../ui/solution-layout/solution-layout";
-import styles from "./stack-page.module.css";
 import { Input } from "../ui/input/input";
 import { Button } from "../ui/button/button";
-import { ElementStates } from "../../types/element-states";
-import { nanoid } from "nanoid";
 import { Circle } from "../ui/circle/circle";
-import { SHORT_DELAY_IN_MS } from "../../constants/delays";
 import { Stack } from "./stack";
-
-interface IStringElement{
-  string: string;
-  state: ElementStates;
-  key: string;
-}
-
-interface IState{
-  isAlgoritmWork: boolean;
-  isAdding: boolean;
-  isRemoval: boolean;
-}
+import { IStackSymbols } from "../../types/components-Types";
+import { ElementStates } from "../../types/element-states";
+import { setAnimation } from "../../utils/utils";
+import { SHORT_DELAY_IN_MS } from "../../utils/constants/delays";
 
 export const StackPage: React.FC = () => {
 
-  const [value, setValue] = useState(''); 
-  const [ newRender, setNewRender ] = useState<boolean>(false);
-  const [ isTextInInput, setIsTextInInput ] = useState<boolean>(false);
-  const [ state, setState ] = useState<IState>({
-    isAlgoritmWork: false,
-    isAdding: false,
-    isRemoval: false,
-  });
+  const stack = new Stack<string>();
 
-  const inputRef: React.MutableRefObject<HTMLInputElement | null> = useRef(null);
-  const stack: React.MutableRefObject<Stack<IStringElement>> = 
-    useRef(new Stack<IStringElement>());
-  useEffect(() => {
-    inputRef.current = document.querySelector('.input-in-container > .text_type_input');
-  }, []);
+  const [value, setValue] = useState('');
+  const [array, setArray] = useState<IStackSymbols[]>([]);
 
-  const checkTextInInput = () => {
-    if (inputRef.current?.value !== '') {
-      setIsTextInInput(true);
-    } else {
-      setIsTextInInput(false);
-    }
-  }
+  const [addLoader, setAddLoader] = useState(false);
+  const [deleteLoader, setDeleteLoader] = useState(false);
+  const [clearLoader, setClearLoader] = useState(false);
+  const [buttonState, setButtonState] = useState(true); 
+  const [addButton, setAddButton] = useState(true);
 
-  const addElementInStack = () => {
-    setState({
-      isAlgoritmWork: true,
-      isAdding: true,
-      isRemoval: false,
+  const handleChangeValue = (evt: FormEvent<HTMLInputElement>) => {
+    evt.preventDefault();
+    evt.currentTarget.value ? setAddButton(false) : setAddButton(true);
+    setValue(evt.currentTarget.value);
+  };
+
+  const handleAddToStack = async () => {
+    setAddLoader(true);
+    setButtonState(true)
+
+    stack.push(value);
+    array.push({
+      symbol: stack.peak() ? stack.peak() : '',
+      state: ElementStates.Changing
     });
-    if (inputRef.current) {
-      stack.current.pushElement({
-        string: inputRef.current.value,
-        state: ElementStates.Changing,
-        key: nanoid(),
-      });
-      inputRef.current.value = '';
-      setIsTextInInput(false);
-    }
-    setNewRender(!newRender);
-    setTimeout(() => {
-      stack.current.getStack()[stack.current.getStackLength() - 1].state = 
-        ElementStates.Default;
-      setNewRender(!newRender);
-      setState({
-        isAlgoritmWork: false,
-        isAdding: false,
-        isRemoval: false,
-      });
-    }, SHORT_DELAY_IN_MS);
+
+    setArray([...array]);
+    await setAnimation(SHORT_DELAY_IN_MS);
+    array[array.length - 1].state = ElementStates.Default;
+
+    setArray([...array]);
+    setAddLoader(false);
+    setButtonState(false);
+    setValue('')
   };
 
-  const deleteElementInStack = () => {
-    setState({
-      isAlgoritmWork: true,
-      isAdding: false,
-      isRemoval: true,
-    });
-    stack.current.getStack()[stack.current.getStackLength() - 1].state = 
-      ElementStates.Changing;
-    setNewRender(!newRender);
-    setTimeout(() => {
-      stack.current.getStack().pop();
-      setNewRender(!newRender);
-      setState({
-        isAlgoritmWork: false,
-        isAdding: false,
-        isRemoval: false,
-      });
-    }, SHORT_DELAY_IN_MS);
+  const handleDeleteNumber = async () => {
+    setDeleteLoader(true);
+    setButtonState(true);
+
+    array[array.length - 1].state = ElementStates.Changing;
+    await setAnimation(SHORT_DELAY_IN_MS);
+    
+    stack.pop();
+    array.pop();
+    setArray([...array])
+
+    setButtonState(false);
+    setDeleteLoader(false);
   };
 
-  const reset = () => {
-    stack.current.clear();
-    setNewRender(!newRender);
+  const handleClearStack = async () => {
+    setClearLoader(true);
+    setButtonState(true);
+
+    await setAnimation(SHORT_DELAY_IN_MS);
+    stack.clear();
+    setArray([]);
+
+    setClearLoader(false);
   };
-
-  const circleElements = stack.current.getStack().map((item, index) => {
-    if (20 - stack.current.getStackLength() + index >= 0) {
-      return <Circle
-        state={item.state}
-        letter={item.string}
-        head={index === stack.current.getStackLength() -1 ? "top" : null}
-        index={index}
-        extraClass={styles.circle}
-        key={item.key}
-      />
-    }
-  });
-
+  
   return (
     <SolutionLayout title="Стек">
+      <form className={styles.form} onSubmit={(evt) => {
+        evt.preventDefault();
+        handleAddToStack();
+        setAddButton(true)
+        }}> 
+        <div className={styles.input}>
+          <Input 
+            isLimitText 
+            maxLength={4} 
+            name='numInput' 
+            onChange={handleChangeValue} 
+            value={value}/>
+          <Button 
+            text={'Добавить'} 
+            type='submit' 
+            disabled={addButton} 
+            isLoader={addLoader}/>
+          <Button 
+            text={'Удалить'} 
+            type='button' 
+            disabled={buttonState} 
+            isLoader={deleteLoader}
+            onClick={handleDeleteNumber}/>
+          <Button 
+            text={'Очистить'} 
+            type='reset' 
+            extraClass='ml-35' 
+            disabled={buttonState}
+            isLoader={clearLoader} 
+            onClick={handleClearStack}/>
+        </div>
+        <ul className={styles.list}>
 
-      <div className={styles.controlContainer}>
-        <Input
-          extraClass={`${styles.input} input-in-container`}
-          maxLength={4}
-          isLimitText={true}
-          onChange={checkTextInInput}
-          value={value}
-          disabled={state.isAlgoritmWork}
-        />
-        <Button
-          text="Добавить"
-          extraClass={styles.buttonAdd}
-          disabled={!isTextInInput || state.isAlgoritmWork}
-          onClick={addElementInStack}
-          isLoader={state.isAdding}
-        />
-        <Button
-          text="Удалить"
-          extraClass={styles.buttonDelette}
-          onClick={deleteElementInStack}
-          disabled={stack.current.getStackLength() === 0 || state.isAlgoritmWork}
-          isLoader={state.isRemoval}
-        />
-        <Button
-          text="Очистить"
-          extraClass={styles.buttonReset}
-          onClick={reset}
-          disabled={stack.current.getStackLength() === 0 || state.isAlgoritmWork}
-        />
-      </div>
-      <div className={styles.circlesContainer}>
-        {circleElements && circleElements}      
-      </div>
+          { array && (
+            array.map((item, index) => {
+              return(
+                <li key={index}>
+                  <Circle 
+                    letter={item?.symbol} 
+                    index={index} 
+                    state={item.state}
+                    head={array.length - 1 === index  ? 'top' : ''}/>
+                </li>
+              )
+            })
+          )}
+
+        </ul>
+      </form>
     </SolutionLayout>
   );
 };

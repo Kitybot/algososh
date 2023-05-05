@@ -67,14 +67,12 @@ export const FibonacciPage: React.FC = () => {
             isLimitText={true} 
             maxLength={2} 
             max={19} 
-            value={value}
-            />
+            value={value}/>
           <Button 
             text={'Рассчитать'} 
             type='submit' 
             disabled={buttonState}
-            isLoader={loader
-            }/>
+            isLoader={loader}/>
         </div>
       </form>
       <ul className={styles.list}> 

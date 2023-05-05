@@ -1,27 +1,36 @@
-export class Stack<T> extends Array {
-    array: T[]; 
-    constructor() {
-      super();
-      this.array = [];
-    }
+import { IStack } from "../../types/components-Types";
   
-    getStack() {
-      return this.array;
+export class Stack<T> implements IStack<T> {
+  private container: T[] = [];
+
+  push = (item: T): void => {
+    this.container.push(item);
+  };
+
+  pop = (): void => {
+    if(this.size > 1){
+    this.container.pop();
+    } else {
+      return;
     }
-  
-    getStackLength() {
-      return this.array.length;
-    }
-  
-    pushElement(element: T) {
-      this.array.push(element);
-    }
-  
-    pope() {
-      this.array.pop();
-    }
-  
-    clear() {
-      this.array = [];
-    }
-  }
+  };
+
+  peak = () => {
+    if (this.size !== 0) {
+      return this.container[this.size - 1];
+    };
+    return undefined;
+  };
+
+  clear = (): void => {
+      this.container = [];
+  };
+
+  get size() {
+      return this.container.length;
+  };
+
+  get elements() {
+    return this.container;
+  };
+};

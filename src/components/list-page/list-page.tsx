@@ -218,7 +218,7 @@ export const ListPage: React.FC = () => {
       return num.state = ElementStates.Default;
     });
     await setAnimation(SHORT_DELAY_IN_MS);
-
+    
     setInd('');
     setValue('');
     setDeleteByIdx(false);

@@ -9,7 +9,7 @@ export class LinkedListNode<T> {
     this.next = (next === undefined ? null : next);
   };
 };
-
+  
 export class LinkedList<T> implements ILinkedList<T> {
    head: LinkedListNode<T> | null;
    size: number;
