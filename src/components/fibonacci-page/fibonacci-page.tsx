@@ -15,6 +15,7 @@ interface IFibo {
 
 export const FibonacciPage: React.FC = () => {
 
+  const [value, setValue] = useState('');
   // массив данных об элементах с числами Фибоначчи
   const [ arrayFibo, setArrayFibo ] = useState<IFibo[]>([]);
   // значение поля input
@@ -102,6 +103,7 @@ export const FibonacciPage: React.FC = () => {
         isLimitText={true}
         extraClass={`${styles.input} input-in-container`}
         disabled={isFiboMading}
+        value={value}
         onChange={getIsInputValid}
       />
       <Button 

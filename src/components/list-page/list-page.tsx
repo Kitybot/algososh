@@ -26,6 +26,7 @@ export const ListPage: React.FC = () => {
   const [ isStringInputEmpty, setIsStringInputEmpty ] = useState(true);
   const [ isIndexInputEmpty, setIsIndexInputEmpty ] = useState(true);
   const [ isIndexFit, setIsIndexFit ] = useState(true);
+  const [value, setValue] = useState('');
   const [ state, setState ] = useState({
     isAlgoritmWork: false,
     isAddHead: false,
@@ -375,6 +376,7 @@ export const ListPage: React.FC = () => {
           placeholder = "Введите значение"
           maxLength={4}
           extraClass={`${styles.input} input-string-container`}
+          value={value}
           onChange={checkStringInput}
           disabled={state.isAlgoritmWork}
         />
@@ -414,6 +416,7 @@ export const ListPage: React.FC = () => {
           type="number"
           maxLength={4}
           extraClass={`${styles.input} input-index-container`}
+          value={value}
           onChange={checkIndexInput}
           disabled={state.isAlgoritmWork}
         />
