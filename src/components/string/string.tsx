@@ -1,133 +1,132 @@
-import React, { ChangeEvent, useState, FormEvent, useEffect } from "react";
-import styles from './string.module.css';
+import React, { useState, useEffect, useRef } from "react";
 import { SolutionLayout } from "../ui/solution-layout/solution-layout";
 import { Input } from "../ui/input/input";
+import styles from "./string.module.css";
 import { Button } from "../ui/button/button";
 import { Circle } from "../ui/circle/circle";
-import { ISymbolsStep } from '../../types/components-Types';
+import { nanoid } from "nanoid";
 import { ElementStates } from "../../types/element-states";
-import { DELAY_IN_MS } from "../../utils/constants/delays"; 
+import { DELAY_IN_MS } from "../../constants/delays";
+
+interface IStringElement{
+  string: string;
+  state: ElementStates;
+  key: string;
+}
 
 export const StringComponent: React.FC = () => {
+  // состояние для элементов строки
+  const [ mark, setMark ] = useState<boolean>(false);
+  const [ invertedString, setInvertedString ] = useState<IStringElement[]>([]);
+  const [ isStringInvert, setIsStringInvert] = useState<boolean>(false);
 
-  const [buttonState, setButtonState] = useState(true);
-  const [loader, setLoader] = useState(false);
-  const [value, setValue] = useState('');
-
-  const [steps, setSteps] = useState<ISymbolsStep[]>([]);
-  const [currentStep, setCurrentStep] = useState<ISymbolsStep | null>(null);
-  const [stepIndex, setStepIndex] = useState(0);
-
-  const handleChangeValue = (evt: ChangeEvent<HTMLInputElement>) => {
-    evt.preventDefault();
-    const value = evt.target.value;
-    value ? setButtonState(false) : setButtonState(true);
-    setValue(value);
-  };
-
-  const getSteps = (string: string): ISymbolsStep[] => {
-    const symbols = string.split('');
-    const steps: ISymbolsStep[] = [];
-
-    if(symbols.length === 0) {
-      return steps
-    };
-    steps.push({
-      symbols: [...symbols]
-    });
-
-    let leftIndex = 0;
-    let rightIndex = symbols.length - leftIndex - 1;
-    while(leftIndex <= rightIndex) {
-      steps.push({
-        symbols: [...symbols],
-        index: leftIndex,
-        state: ElementStates.Changing
-      });
-
-      symbols[leftIndex] = string[rightIndex];
-      symbols[rightIndex] = string[leftIndex];
-      steps.push({
-        symbols: [...symbols],
-        index: leftIndex,
-        state: ElementStates.Modified
-      });
-      leftIndex++
-      rightIndex--
-    };
-
-    steps.push({
-      symbols: [...symbols]
-    });
-    return steps
-  };
-
+  // поиск поля input в DOM
+  const input: React.MutableRefObject<HTMLInputElement | null> = useRef(null);
   useEffect(() => {
-    if(steps.length === 0 || stepIndex >= steps.length) {
-      setLoader(false)
-      return;
-    };
+    input.current = document.querySelector('.input-in-container > .text_type_input');
+  }, []);
 
-    setLoader(true);
-    setCurrentStep(steps[stepIndex]);
-    setButtonState(true);
-    setTimeout(() => {
-      setStepIndex(stepIndex + 1)
-    }, DELAY_IN_MS)
-  }, [steps, stepIndex, currentStep, loader]);
+  // разворот строки
+  useEffect(() => {
+    if (invertedString.length > 0) {
+      setIsStringInvert(true);
+      // если в строке только один элемент
+      if (invertedString.length === 1) {
+        setTimeout(() => {
+          const newString = [{...invertedString[0]}];
+          newString[0].state = ElementStates.Modified;
+          setInvertedString(newString);
+          setIsStringInvert(false);
+        }, DELAY_IN_MS);
+      } else {
+        // количество элементов: четное - полный разворот; нечетное - всего кроме центра
+        const middleString = invertedString.length / 2;
+        let changedString = invertedString.map(item => ({...item}));
+        const invert = (number: number): void => {
+          let i = 0;
+          // показ перемещаемых элементов
+          setTimeout(function invert() {
+            changedString = changedString.map(item => ({...item}));
+            changedString[i].state = ElementStates.Changing;
+            changedString[changedString.length - (i + 1)].state = ElementStates.Changing;
+            setInvertedString(changedString);
+            // перемещение элементов
+            setTimeout(() => {
+              changedString = changedString.map(item => ({...item}));
+              const temp = changedString[i];
+              changedString[i] = changedString[changedString.length - (i + 1)];
+              changedString[changedString.length - (i + 1)] = temp;
+              changedString[i].state = ElementStates.Modified;
+              changedString[changedString.length - (i + 1)].state = ElementStates.Modified;
+              setInvertedString(changedString);
+              // повторный вызов функции, если необходимо
+              if (i < number) {
+                setTimeout(invert, DELAY_IN_MS)
+              }
+              // изменение центрального элемента у массива с нечетным количеством элементов
+              if (i >= number && invertedString.length%2) {
+                const middle = Math.ceil(middleString);
+                setTimeout(() => {
+                  changedString = changedString.map(item => ({...item}));
+                  changedString[middle - 1].state = ElementStates.Modified;
+                  setInvertedString(changedString);
+                  setIsStringInvert(false);
+                }, DELAY_IN_MS);
+              }
+              if (i >= number && invertedString.length%2 === 0) {
+                setIsStringInvert(false);
+              }
+              i++;
+            }, DELAY_IN_MS);
+          }, DELAY_IN_MS);
+        }
+        invert(Math.trunc(middleString) - 1);
+      }
+    }
+  }, [mark]);
 
-  const handleShowWord = (evt: FormEvent<HTMLFormElement>) => {
-    evt.preventDefault();
-    setValue('');
-    const form = evt.currentTarget;
-    const formElements = form.elements as typeof form.elements & {
-      stringInput: HTMLInputElement;
-    };
-    const letters = formElements.stringInput.value;
-
-    setCurrentStep(null);
-    setStepIndex(0);
-    setSteps(getSteps(letters));
-  };
+  // формирование из введенной в input строки массива элементов строки
+  const useTextInput = () => {
+    if (input.current !== null) {
+        const newString = input.current.value.split('').map(item => ({
+          string: item,
+          state: ElementStates.Default,
+          key: nanoid(),
+        }));
+        setInvertedString(newString);
+        setMark(!mark);
+      }  };
+  const stringInCircle = invertedString.length === 0 ? null : invertedString.map(item => {
+    return (
+      <Circle
+        letter={item.string}
+        state={item.state}
+        extraClass={styles.extraCircle}
+        key={item.key}
+      />
+    )
+  });
 
   return (
     <SolutionLayout title="Строка">
-      <form className={styles.form} onSubmit={handleShowWord}> 
-        <div className={styles.input}>
-          <Input 
-            type='text' 
-            name='stringInput' 
-            isLimitText={true} 
-            maxLength={11} 
-            onChange={handleChangeValue} 
-            value={value}/>
-          <Button  
-            type='submit' 
-            disabled={buttonState} 
-            isLoader={loader}
-            text={'Развернуть'}/>
-        </div>
-      </form> 
-      <ul className={styles.list}>
 
-        { currentStep && (
-          currentStep.symbols.map((letter, index) => {
-            let state = ElementStates.Default
-            let stepIndex = currentStep.index;
-            if(stepIndex !== undefined) {
-              if(index === stepIndex || index === currentStep.symbols.length - stepIndex - 1) {
-                state = currentStep.state ?? state}
-            };
-            return (
-              <li key={index}>
-                <Circle 
-                  letter={letter} 
-                  state={state}/>
-              </li>
-            )
-          })
-        )} 
-         
-      </ul>
+      <div className={styles.elementsContainer}>
+        <Input 
+          maxLength={11}
+          isLimitText={true}
+          extraClass={`${styles.input} input-in-container`}
+          disabled={isStringInvert}
+        />
+        <Button 
+          text='Развернуть'
+          onClick={useTextInput}
+          isLoader={isStringInvert}
+          disabled={isStringInvert}
+        />
+      </div>
+      <div className={styles.stringsContainer}>
+        {stringInCircle && stringInCircle}
+      </div>
     </SolutionLayout>
-  )};
+  );
+};

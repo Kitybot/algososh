@@ -3,7 +3,7 @@ import styles from "./circle.module.css";
 import { ElementStates } from "../../../types/element-states";
 
 interface CircleProps {
-  state?: string;
+  state?: ElementStates;
   letter?: string;
   head?: string | React.ReactElement | null;
   index?: number;
@@ -14,7 +14,7 @@ interface CircleProps {
 }
 
 export const Circle: React.FC<CircleProps> = ({
-  state = 'default',
+  state = ElementStates.Default,
   letter,
   head,
   index,

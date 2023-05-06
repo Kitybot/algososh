@@ -1,24 +1,36 @@
-.form {
-  composes: form from '../string/string.module.css';
-}
-
-.input {
-  composes: input from '../string/string.module.css';
-}
-
-.hint {
-  composes: hint from '../string/string.module.css';
-}
-
-.list {
+.elementsContainer{
   display: flex;
   flex-direction: row;
   justify-content: center;
-  margin: 48px auto 0;
-  gap: 16px;
-  padding: 0; 
-  width: 944px;
-  flex-wrap: wrap;
-  row-gap: 48px;
-  list-style-type: none;
+}
+
+.input{
+  max-width: 377px;
+  margin-right: 12px;
+}
+
+.numberContainer{
+  display: flex;
+  width: fit-content;
+  max-width: 944px;
+  flex-direction: row;
+  flex-flow: wrap;
+  margin: 46px auto 0;
+}
+
+.button{
+  width: 178px;
+}
+
+.circle{
+  margin-right: 16px;
+  margin-bottom: 78px;
+}
+
+.circle:nth-child(10n){
+  margin-right: 0;
+}
+
+.circle:last-child{
+  margin-right: 0;
 }

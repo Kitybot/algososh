@@ -1,12 +1,46 @@
-.form {
-  composes: form from '../string/string.module.css';
-  width: 829px;
+.input{
+  min-width: 377px;
+  margin-right: 12px;
 }
 
-.input {
-  composes: input from '../string/string.module.css';
+.buttonAdd{
+  min-width: 121px;
+  margin-right: 12px;
 }
 
-.list {
-  composes: list from '../fibonacci-page/fibonacci-page.module.css';
+.buttonDelette{
+  min-width: 108px;
+  margin-right: 80px;
+}
+
+.buttonReset{
+  min-width: 119px;
+}
+
+.controlContainer{
+  display: flex;
+  width: fit-content;
+  margin: 0 auto;
+}
+
+.circlesContainer{
+  display: flex;
+  width: fit-content;
+  max-width: 944px;
+  flex-direction: row;
+  flex-flow: wrap;
+  margin: 50px auto 0;
+}
+
+.circle{
+  margin-right: 16px;
+  margin-bottom: 78px;
+}
+
+.circle:nth-child(10n){
+  margin-right: 0;
+}
+
+.circle:last-child{
+  margin-right: 0;
 }

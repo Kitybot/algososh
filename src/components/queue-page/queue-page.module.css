@@ -1,12 +1,41 @@
-.form {
-  composes: form from '../stack-page/stack-page.module.css';
+.controlContainer{
+  display: flex;
+  width: fit-content;
+  margin: 0 auto;
 }
 
-.input {
-  composes: input from '../string/string.module.css';
+.input{
+  min-width: 377px;
+  margin-right: 12px;
 }
 
-.list {
-  composes: list from '../fibonacci-page/fibonacci-page.module.css';
-  width: 656px;
+.buttonAdd{
+  min-width: 121px;
+  margin-right: 12px;
+}
+
+.buttonDelette{
+  min-width: 108px;
+  margin-right: 80px;
+}
+
+.buttonReset{
+  min-width: 119px;
+}
+
+.circlesContainer{
+  display: flex;
+  width: fit-content;
+  max-width: 944px;
+  flex-direction: row;
+  flex-flow: wrap;
+  margin: 50px auto 0;
+}
+
+.circle{
+  margin-right: 16px;
+}
+
+.circle:last-child{
+  margin-right: 0;
 }

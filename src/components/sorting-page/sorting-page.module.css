@@ -1,33 +1,43 @@
-.form {
-  display: flex;
-  flex-direction: row;
-  width: 980px;
-  margin: auto;
+.button{
+  width: 205px;
+  margin-right: 12px;
 }
 
-.radioSet {
-  display: flex;
-  flex-direction: row;
-  gap: 40px;
+.button:nth-of-type(2n){
+  margin-right: 80px;
 }
 
-.adjustmentSet {
-  composes: radioSet;
-  gap: 12px;
-  margin: 0 80px 0 52px;
+.button:last-of-type{
+  margin-right: 0;
 }
 
-.columnSet {
+.controlContainer{
   display: flex;
-  flex-direction: row;
+  align-items: center;
+  width: fit-content;
+  margin: 0 auto;
+}
+
+.radioInput{
+  margin-right: 40px;
+}
+
+.radioInput:last-of-type{
+  margin-right: 56px;
+}
+
+.columnsContainer{
+  display: flex;
   align-items: flex-end;
-  justify-content: center;
-  gap: 10px;
-  padding: 0;
-  margin: 48px 0 0;
-  list-style-type: none;
+  width: fit-content;
+  min-height: 362px;
+  margin: 48px auto 0;
 }
 
-.button {
-  width: 208px;
+.column{
+  margin-right: 10px;
+}
+
+.column:last-child{
+  margin-right: 0;
 }

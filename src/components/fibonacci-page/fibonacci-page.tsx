@@ -1,94 +1,120 @@
-import React, { useState, ChangeEvent, FormEvent } from "react";
-import styles from './fibonacci-page.module.css';
+import React, { useRef, useEffect, useState } from "react";
 import { SolutionLayout } from "../ui/solution-layout/solution-layout";
-import { Input } from "../ui/input/input";
-import { Button } from "../ui/button/button";
+import styles from './fibonacci-page.module.css';
+import { Input } from '../ui/input/input';
+import { Button } from '../ui/button/button';
 import { Circle } from "../ui/circle/circle";
-import { SHORT_DELAY_IN_MS } from "../../utils/constants/delays";
-import { setAnimation } from "../../utils/utils";
+import { nanoid } from "nanoid";
+import { SHORT_DELAY_IN_MS } from '../../constants/delays';
+
+interface IFibo {
+  value: number;
+  index: number;
+  uuid: string;
+}
 
 export const FibonacciPage: React.FC = () => {
 
-  const [loader, setLoader] = useState(false);
-  const [buttonState, setButtonState] = useState(true);
+  // массив данных об элементах с числами Фибоначчи
+  const [ arrayFibo, setArrayFibo ] = useState<IFibo[]>([]);
+  // значение поля input
+  const [ quantity, setQuantity ] = useState<number | null>(null);
+  // состояние развертывания массива JSX-элементов с числами Фибоначчи
+  const [ isFiboMading, setIsFiboMading ] = useState<boolean>(false);
+  // состояние валидности поля input
+  const [ isInputValid, setIsInputValid ] = useState<boolean>(false);
 
-  const [array, setArray] = useState<number[]>([]);
-  const [value, setValue] = useState('');
 
-  const handleChangeValue = (evt: ChangeEvent<HTMLInputElement>) => {
-    evt.preventDefault();
-    const value = Number(evt.target.value);
-    setValue(String(value));
-   if(value <= 19 && value >= 1) {
-    setButtonState(false);
-   } else {
-    setButtonState(true);
-   };
-  }; 
-
-  const  getFibonacciNumbers = async (number: number) => {
-    setLoader(true);
-
-    const array: number [] = [];
-    for(let i = 0; i < number + 1; i++) {
-      if (i === 0 || i === 1) {
-        array.push(1);
-      } else {
-        array.push(array[i - 2] + array[i - 1]);
-      };
-      setArray([...array]);
-      await setAnimation(SHORT_DELAY_IN_MS);
-    };
-
-    setLoader(false);
+  // поиск поля input в DOM
+  const input: React.MutableRefObject<HTMLInputElement | null> = useRef(null);
+  useEffect(() => {
+    input.current = document.querySelector('.input-in-container > .text_type_input');
+  }, []);
+  const getIsInputValid = () => {
+    const stateInput = input && input.current ? input.current.validity.valid : false;
+    setIsInputValid(stateInput);
   };
 
-  const handleShowSequence = (evt: FormEvent<HTMLFormElement>) => {
-    evt.preventDefault();
-    setValue('');
-    const form = evt.currentTarget;
-    const formElements = form.elements as typeof form.elements & {
-      numberInput: HTMLInputElement;
-    };
+  // формирование массива данных об элементах с числами Фибоначчи
+  useEffect(() => {
+    if (quantity !== null) {
+      setIsFiboMading(true);
+      const getFibonacciNumbers = (quantity: number): void => {
+        let array: IFibo[] = [];
+        let beforPrev: number = 0, prev: number = 0;
+        if (quantity !== null) {
+          for (let i = 0; i <= quantity; i++) {
+            if (i === 0) {
+              beforPrev = 1;
+            }
+            const curr = beforPrev + prev;
+            array.push(
+              {
+                value: curr,
+                index: i,
+                uuid: nanoid(),
+              }
+            );
+            beforPrev = prev;
+            prev = curr
+          }
+        }
+        setArrayFibo(array);
+      }
 
-    const number = Number(formElements.numberInput.value);
-    getFibonacciNumbers(number);
-    setButtonState(true);
+      let i = 0;
+      setTimeout(() => {
+        (function showArrayFiboIncrementally() {
+          getFibonacciNumbers(i);
+          if (i < quantity) {
+            setTimeout(showArrayFiboIncrementally, SHORT_DELAY_IN_MS);
+          } else {
+            setIsFiboMading(false);
+          }
+          i++;
+        })();
+      }, SHORT_DELAY_IN_MS)
+    }
+  }, [quantity]);
+
+  // получение значения из поля input
+  const setNumber = () => {
+    input.current !== null && setQuantity(Number(input.current.value));
   };
+
+  // формирование массива JSX-элементов с числами Фибоначчи
+  const elementsFibo = arrayFibo.length === 0 ? null : arrayFibo.map( item => {
+    return (<Circle
+      letter={String(item.value)}
+      index={item.index}
+      key={item.uuid}
+      extraClass={styles.circle}
+    />)
+  });
 
   return (
     <SolutionLayout title="Последовательность Фибоначчи">
-     <form className={styles.form} onSubmit={handleShowSequence}> 
-        <div className={styles.input}>
-          <Input 
-            type='number' 
-            name='numberInput' 
-            onChange={handleChangeValue} 
-            isLimitText={true} 
-            maxLength={2} 
-            max={19} 
-            value={value}/>
-          <Button 
-            text={'Рассчитать'} 
-            type='submit' 
-            disabled={buttonState}
-            isLoader={loader}/>
-        </div>
-      </form>
-      <ul className={styles.list}> 
-
-        { array && (
-          array.map((number, index) => {
-            return (
-              <li key={index}>
-                <Circle 
-                  letter={String(number)} 
-                  index={index}/>
-              </li>
-            )
-          })
-        )}
-
-      </ul>
+    <div className={styles.elementsContainer}>
+      <Input 
+        placeholder="Введите число"
+        max={19}
+        type='number'
+        isLimitText={true}
+        extraClass={`${styles.input} input-in-container`}
+        disabled={isFiboMading}
+        onChange={getIsInputValid}
+      />
+      <Button 
+        text='Рассчитать'
+        onClick={setNumber}
+        extraClass={styles.button}
+        isLoader={isFiboMading}
+        disabled={isFiboMading || !isInputValid}
+      />
+    </div>
+    <div className={styles.numberContainer}>
+      {elementsFibo && elementsFibo}      
+    </div>
     </SolutionLayout>
-  )};
+  );
+};
