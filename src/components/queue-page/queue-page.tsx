@@ -30,7 +30,7 @@ interface IState {
 export const QueuePage: React.FC = () => {
   // состояние для проведения принудительного рендеринга
   const [ , setNewRender ] = useState<string>('');
-  const [value, setValue] = useState('');
+  const [value, setValue] = useState<string>('');
   // является ли значение поля input пустой строкой или он заполнен
   const [ isInputEmpty, setIsInputEmpty ] = useState<boolean>(true);
   // состояние работы алгоритма очереди
@@ -210,6 +210,9 @@ export const QueuePage: React.FC = () => {
           disabled={isQueueFull() || state.isAlgoritmWork}
           onChange={handleChangeInput}
           value={value}
+          onInput={(event: React.ChangeEvent<HTMLInputElement>) => {
+            setValue(event.target.value);
+          }}
         />
         <Button
           text="Добавить"

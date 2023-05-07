@@ -22,7 +22,7 @@ interface IState{
 }
 
 export const StackPage: React.FC = () => {
-  const [value, setValue] = useState('');
+  const [value, setValue] = useState<string>('');
   const [ newRender, setNewRender ] = useState<boolean>(false);
   const [ isTextInInput, setIsTextInInput ] = useState<boolean>(false);
   const [ state, setState ] = useState<IState>({
@@ -123,6 +123,9 @@ export const StackPage: React.FC = () => {
           onChange={checkTextInInput}
           value={value}
           disabled={state.isAlgoritmWork}
+          onInput={(event: React.ChangeEvent<HTMLInputElement>) => {
+            setValue(event.target.value);
+          }}
         />
         <Button
           text="Добавить"

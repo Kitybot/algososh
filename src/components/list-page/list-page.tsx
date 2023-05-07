@@ -26,7 +26,8 @@ export const ListPage: React.FC = () => {
   const [ isStringInputEmpty, setIsStringInputEmpty ] = useState(true);
   const [ isIndexInputEmpty, setIsIndexInputEmpty ] = useState(true);
   const [ isIndexFit, setIsIndexFit ] = useState(true);
-  const [value, setValue] = useState('');
+  const [value, setValue, ] = useState<string>('');
+  const [input, inputText, ] = useState<string>('');
   const [ state, setState ] = useState({
     isAlgoritmWork: false,
     isAddHead: false,
@@ -379,6 +380,9 @@ export const ListPage: React.FC = () => {
           value={value}
           onChange={checkStringInput}
           disabled={state.isAlgoritmWork}
+          onInput={(event: React.ChangeEvent<HTMLInputElement>) => {
+            setValue(event.target.value);
+          }}
         />
         <Button
           text="Добавить в head"
@@ -416,9 +420,12 @@ export const ListPage: React.FC = () => {
           type="number"
           maxLength={4}
           extraClass={`${styles.input} input-index-container`}
-          value={value}
+          value={input}
           onChange={checkIndexInput}
           disabled={state.isAlgoritmWork}
+          onInput={(event: React.ChangeEvent<HTMLInputElement>) => {
+            inputText(event.target.value);
+          }}
         />
         <Button
           text="Добавить по индексу"
