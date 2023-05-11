@@ -1,156 +1,88 @@
-import React, { useState, useRef, useEffect } from "react";
-import { SolutionLayout } from "../ui/solution-layout/solution-layout";
-import styles from "./stack-page.module.css";
-import { Input } from "../ui/input/input";
+import React, { useState } from "react";
 import { Button } from "../ui/button/button";
-import { ElementStates } from "../../types/element-states";
-import { nanoid } from "nanoid";
 import { Circle } from "../ui/circle/circle";
-import { SHORT_DELAY_IN_MS } from "../../constants/delays";
+import { Input } from "../ui/input/input";
+import { SolutionLayout } from "../ui/solution-layout/solution-layout";
 import { Stack } from "./stack";
-
-interface IStringElement{
-  string: string;
-  state: ElementStates;
-  key: string;
-}
-
-interface IState{
-  isAlgoritmWork: boolean;
-  isAdding: boolean;
-  isRemoval: boolean;
-}
+import styles from './stack-page.module.css';
 
 export const StackPage: React.FC = () => {
   const [value, setValue] = useState<string>('');
-  const [ newRender, setNewRender ] = useState<boolean>(false);
-  const [ isTextInInput, setIsTextInInput ] = useState<boolean>(false);
-  const [ state, setState ] = useState<IState>({
-    isAlgoritmWork: false,
-    isAdding: false,
-    isRemoval: false,
-  });
+  let [array, setArray] = useState<any[]>([]);
+  const [isShownTimeout, setIsShownTimeout] = useState<string>('');
 
-  const inputRef: React.MutableRefObject<HTMLInputElement | null> = useRef(null);
-  const stack: React.MutableRefObject<Stack<IStringElement>> = 
-    useRef(new Stack<IStringElement>());
-  useEffect(() => {
-    inputRef.current = document.querySelector('.input-in-container > .text_type_input');
-  }, []);
+  const st = new Stack<string>(array);
 
-  const checkTextInInput = () => {
-    if (inputRef.current?.value !== '') {
-      setIsTextInInput(true);
-    } else {
-      setIsTextInInput(false);
-    }
+  const delay = (delay: number) => new Promise((resolve) => setInterval(resolve, delay));
+
+
+  const addItem = async(value: string) => {
+    
+    setIsShownTimeout('0')
+    await delay(500)
+    setArray([st?.push(value)]);
+    setArray([...array]);
+    setValue('')
+    setIsShownTimeout('')
   }
-
-  const addElementInStack = () => {
-    setState({
-      isAlgoritmWork: true,
-      isAdding: true,
-      isRemoval: false,
-    });
-    if (inputRef.current) {
-      stack.current.pushElement({
-        string: inputRef.current.value,
-        state: ElementStates.Changing,
-        key: nanoid(),
-      });
-      inputRef.current.value = '';
-      setIsTextInInput(false);
-    }
-    setNewRender(!newRender);
-    setTimeout(() => {
-      stack.current.getStack()[stack.current.getStackLength() - 1].state = 
-        ElementStates.Default;
-      setNewRender(!newRender);
-      setState({
-        isAlgoritmWork: false,
-        isAdding: false,
-        isRemoval: false,
-      });
-    }, SHORT_DELAY_IN_MS);
-  };
-
-  const deleteElementInStack = () => {
-    setState({
-      isAlgoritmWork: true,
-      isAdding: false,
-      isRemoval: true,
-    });
-    stack.current.getStack()[stack.current.getStackLength() - 1].state = 
-      ElementStates.Changing;
-    setNewRender(!newRender);
-    setTimeout(() => {
-      stack.current.getStack().pop();
-      setNewRender(!newRender);
-      setState({
-        isAlgoritmWork: false,
-        isAdding: false,
-        isRemoval: false,
-      });
-    }, SHORT_DELAY_IN_MS);
-  };
-
-  const reset = () => {
-    stack.current.clear();
-    setNewRender(!newRender);
-  };
-
-  const circleElements = stack.current.getStack().map((item, index) => {
-    if (20 - stack.current.getStackLength() + index >= 0) {
-      return <Circle
-        state={item.state}
-        letter={item.string}
-        head={index === stack.current.getStackLength() -1 ? "top" : null}
-        index={index}
-        extraClass={styles.circle}
-        key={item.key}
-      />
-    }
-  });
+  const delItem = async () => {
+    setIsShownTimeout('1')
+    await delay(500)
+    setArray([st?.pop()]);
+    setArray([...array]);
+    setIsShownTimeout('')
+  }
+  const clear = async() => {
+    setIsShownTimeout('2')
+    await delay(500)
+    setArray([array.splice(0, array.length)]);
+    setArray([...array]);
+    setIsShownTimeout('')
+  }
 
   return (
     <SolutionLayout title="Стек">
-
-      <div className={styles.controlContainer}>
+      <div className={styles.input}>
         <Input
-          extraClass={`${styles.input} input-in-container`}
-          maxLength={4}
           isLimitText={true}
-          onChange={checkTextInInput}
-          value={value}
-          disabled={state.isAlgoritmWork}
-          onInput={(event: React.ChangeEvent<HTMLInputElement>) => {
-            setValue(event.target.value);
-          }}
+          maxLength={4}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
+          type="text" value={value}
+          extraClass={`${styles.inputStack}`}
         />
         <Button
-          text="Добавить"
-          extraClass={styles.buttonAdd}
-          disabled={!isTextInInput || state.isAlgoritmWork}
-          onClick={addElementInStack}
-          isLoader={state.isAdding}
+          text='Добавить'
+          onClick={() => addItem(value)}
+          disabled={value ? false : true}
+          isLoader={isShownTimeout === '0'}
         />
         <Button
-          text="Удалить"
-          extraClass={styles.buttonDelette}
-          onClick={deleteElementInStack}
-          disabled={stack.current.getStackLength() === 0 || state.isAlgoritmWork}
-          isLoader={state.isRemoval}
+          isLoader={isShownTimeout === '1'}
+          text='Удалить'
+          onClick={delItem}
+          disabled={array.length ? false : true}
         />
         <Button
-          text="Очистить"
-          extraClass={styles.buttonReset}
-          onClick={reset}
-          disabled={stack.current.getStackLength() === 0 || state.isAlgoritmWork}
+          isLoader={isShownTimeout === '2'}
+          text='Очистить'
+          onClick={clear}
+          extraClass={`${styles.btnNewArr} ${styles.btn}`}
+          disabled={array.length ? false : true}
         />
       </div>
-      <div className={styles.circlesContainer}>
-        {circleElements && circleElements}      
-      </div>
+      <ul className={styles.circle}>
+          {array?.map((item, index: number) => {
+            return (
+              <li key={index}>< Circle
+                head={array.length - 1 === index ? "top" : ''}
+                letter={item}
+                key={index}
+                index={index}
+                /* state={index === currentIndex ? 'changing' : 'default'} */ />
+              </li>
+            )
+          })}
+        </ul>
     </SolutionLayout>
   );
 };

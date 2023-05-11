@@ -19,6 +19,10 @@ interface IIsSorting {
   state: boolean;
   method: string;
 }
+export type TNumber = Array<{
+  number: number
+  color: string
+}>
 
 export const SortingPage: React.FC = () => {
 

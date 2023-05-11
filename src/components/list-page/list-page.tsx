@@ -1,451 +1,248 @@
-import React, { useRef, useEffect, useState } from "react";
-import { SolutionLayout } from "../ui/solution-layout/solution-layout";
-import styles from "./list-page.module.css";
-import { Input } from "../ui/input/input";
+import React, { useRef, useState } from "react";
 import { Button } from "../ui/button/button";
-import { ElementStates } from "../../types/element-states";
-import { nanoid } from "nanoid";
 import { Circle } from "../ui/circle/circle";
-import { SHORT_DELAY_IN_MS } from "../../constants/delays";
-import { LinkedList } from "./LinkedList";
-import { LinkedListNode } from "./linkedListNode";
+import { Input } from "../ui/input/input";
 import { ArrowIcon } from "../ui/icons/arrow-icon";
-import { HEAD, TAIL } from "../../constants/element-captions";
+import { SolutionLayout } from "../ui/solution-layout/solution-layout";
+import styles from './list-page.module.css';
+import { delay } from "../../constants/utils";
+import { LinkedList } from "./LinkedList";
 
-interface ILinkedListNode{
-  string: string;
-  state: ElementStates;
-  uuid: string;
-  head: string | React.ReactElement |  null;
-  tail: string | React.ReactElement |  null;
-}
+
+const firstArr = ['0', '34', '8', '1'];
+const time = 500;
+
 
 export const ListPage: React.FC = () => {
+  const [list] = useState(new LinkedList<string>(firstArr));
+  const [listItems, setListItems] = useState<string[]>(firstArr);
+  const [inputValue, setInputValue] = useState<string>('');
+  const [inputIndex, setInputIndex] = useState<number>(NaN);
+  const [headSmallCircle, setHeadSmallCircle] = useState<number>(NaN);
+  const [tailSmallCircle, setTailSmallCircle] = useState<number>(NaN);
+  const [headIndex, setHeadIndex] = useState<number>(list.getHeadIndex());
+  const [tailIndex, setTailIndex] = useState<number>(list.getTailIndex());
+  const [colorSmall, setColorSmall] = useState<number>(NaN);
+  const [colorChanging, setColorChanging] = useState<number>(NaN);
+  const [delItem, setDelItem] = useState<number>(NaN);
+  const [loader, setLoader] = useState<number>(NaN);
 
-  const [ , setNewRender ] = useState<string>(nanoid());
-  const [ isStringInputEmpty, setIsStringInputEmpty ] = useState(true);
-  const [ isIndexInputEmpty, setIsIndexInputEmpty ] = useState(true);
-  const [ isIndexFit, setIsIndexFit ] = useState(true);
-  const [value, setValue, ] = useState<string>('');
-  const [input, inputText, ] = useState<string>('');
-  const [ state, setState ] = useState({
-    isAlgoritmWork: false,
-    isAddHead: false,
-    isAddTail: false,
-    isDeleteHead: false,
-    isDeleteTail: false,
-    isAddByIndex: false,
-    isDeleteByIndex: false,
-  });
-
-  let initializingList: ILinkedListNode[] = [];
-  const numberArray = useRef<number[]>([]);
-  if (numberArray.current.length === 0) {
-    for (let i = 1; i <= 4 + Math.round(Math.random() * 2); i++) {
-      numberArray.current.push(Math.round(Math.random() * 100));
-    }
+  const onChange = (e: React.FormEvent<HTMLInputElement>) => {
+    setInputValue(e.currentTarget.value);
   }
-  for (let i = 0; i <= numberArray.current.length - 1; i++) {
-    const number: number = numberArray.current[i];
-    initializingList.push({
-      string: number.toString(),
-      state: ElementStates.Default,
-      uuid: nanoid(),
-      head: i === 0 ? HEAD : null,
-      tail: i === numberArray.current.length - 1 ? TAIL : null,
-    })
-  }
-  const linkedList = useRef(new LinkedList<ILinkedListNode>(initializingList));
-
-  const stringInputRef = useRef<HTMLButtonElement | null>(null);
-  useEffect(() => {
-    stringInputRef.current = 
-      document.querySelector('.input-string-container > .text_type_input');
-  }, []);
-  const checkStringInput = () => {
-    if (stringInputRef.current && stringInputRef.current.value !== '') {
-      setIsStringInputEmpty(false);
-    }
-    if (stringInputRef.current && stringInputRef.current.value === '' && 
-      isStringInputEmpty === false) {
-      setIsStringInputEmpty(true);
-    }
-  };
-
-  const indexInputRef = useRef<HTMLButtonElement | null>(null);
-  useEffect(() => {
-    indexInputRef.current = 
-      document.querySelector('.input-index-container > .text_type_input');
-  }, []);
-  const checkIndexInput = () => {
-    if (indexInputRef.current && indexInputRef.current.value !== '') {
-      setIsIndexInputEmpty(false);
-    }
-    if (indexInputRef.current && isIndexFit === true &&
-      Number(indexInputRef.current.value) >= linkedList.current.length) {
-      setIsIndexFit(false);
-    }
-
-    if (indexInputRef.current && isIndexFit === false &&
-      Number(indexInputRef.current.value) < linkedList.current.length) {
-      setIsIndexFit(true);
-    }
-    if (indexInputRef.current && indexInputRef.current.value === '' && 
-      isIndexInputEmpty === false) {
-      setIsIndexInputEmpty(true);
-    }
-  };
-  function creatNewElement(partList: string): ILinkedListNode {
-    return {
-      string: stringInputRef.current ? stringInputRef.current.value : '',
-      state: ElementStates.Modified,
-      uuid: nanoid(),
-      head: partList === 'HEAD' ? 'HEAD' : null,
-      tail: partList === 'TAIL' ? 'TAIL' : null,
-    }
+  const onChangeIndex = (e: React.FormEvent<HTMLInputElement>) => {
+    setInputIndex(Number(e.currentTarget.value));
   }
 
-  function creatSmallCircle(Element: ILinkedListNode) {
-    return <Circle
-      state={ElementStates.Changing}
-      letter={Element.string}
-      isSmall={true}
-    />
+  const addTail = async () => {
+
+    setLoader(2);
+    setTailIndex(list.getTailIndex());
+    setHeadSmallCircle(tailIndex);
+    list.addTail(inputValue);
+    await delay(time);
+    setInputValue('');
+    setHeadSmallCircle(NaN);
+    setListItems(list.print());
+    setColorSmall(list.getTailIndex());
+    setTailIndex(list.getTailIndex())
+    await delay(time);
+    setColorSmall(NaN);
+    setLoader(NaN);
   }
 
-  const addNewHead = () => {
-    const newElement = creatNewElement('HEAD');
-    const smallCircle = creatSmallCircle(newElement);
-    linkedList.current.head.value.head = smallCircle;
-    setState({
-      ...state,
-      isAlgoritmWork: true,
-      isAddHead: true,
-    });
-    setTimeout(() => {
-      linkedList.current.head.value.head = null;
-      linkedList.current.prepend(newElement);
-      setNewRender(nanoid());
-      setTimeout(() => {
-        linkedList.current.head.value.state = ElementStates.Default;
-        if (stringInputRef.current) {
-          stringInputRef.current.value = '';
-        }
-        setIsStringInputEmpty(true);
-        setState({
-          ...state,
-          isAlgoritmWork: false,
-          isAddHead: false,
-        });
-      }, SHORT_DELAY_IN_MS)
-    }, SHORT_DELAY_IN_MS);
-  };
+  const addHead = async () => {
+    setLoader(1);
+    setHeadSmallCircle(headIndex);
+    list.addHead(inputValue);
+    await delay(time)
+    setInputValue('');
+    setTailIndex(list.getTailIndex());
+    setHeadSmallCircle(NaN);
+    setListItems(list.print());
+    setColorSmall(list.getHeadIndex());
+    await delay(time);
+    setColorSmall(NaN);
+    setLoader(NaN);
+  }
 
-  const addNewTail = () => {
-    const newElement = creatNewElement('TAIL');
-    const smallCircle = creatSmallCircle(newElement);
-    const currTail = linkedList.current.tail;
-    if (currTail) {currTail.value.head = smallCircle};
-    setState({
-      ...state,
-      isAlgoritmWork: true,
-      isAddTail: true,
-    });
-    setTimeout(() => {
-      if (currTail && linkedList.current.tail) {
-        currTail.value.head = null;
-        linkedList.current.tail.value.tail = null;
-      }
-      linkedList.current.append(newElement);
-      setNewRender(nanoid());
-      setTimeout(() => {
-        newElement.state = ElementStates.Default;
-        if (stringInputRef.current) {
-          stringInputRef.current.value = '';
-        }
-        setIsStringInputEmpty(true);
-        setState({
-          ...state,
-          isAlgoritmWork: false,
-          isAddTail: false,
-        });
-      }, SHORT_DELAY_IN_MS)
-    }, SHORT_DELAY_IN_MS);
-  };
+  const addToIndex = async () => {
+    setLoader(5);
+    list.addToIndex(inputValue, +inputIndex);
 
-  const deleteHead = () => {
-    const smallCircle = creatSmallCircle(linkedList.current.head.value);
-    linkedList.current.head.value.tail = smallCircle;
-    linkedList.current.head.value.string = '';
-    setState({
-      ...state,
-      isAlgoritmWork: true,
-      isDeleteHead: true,
-    });
-    setTimeout(() => {
-      linkedList.current.head.value.head = HEAD;
-      setState({
-        ...state,
-        isAlgoritmWork: false,
-        isDeleteHead: false,
-      });
-      //setNewRender(nanoid());
-    }, SHORT_DELAY_IN_MS)
-  };
-
-  const deleteTail = () => {
-    const currTail = linkedList.current.tail;
-    if (currTail) {
-      const smallCircle = creatSmallCircle(currTail.value);
-      currTail.value.tail = smallCircle;
-      currTail.value.string = '';
+    for (let i = 0; i <= inputIndex; i++) {
+      await delay(time);
+      setColorChanging(i)
+      setHeadSmallCircle(i);
     }
-    setState({
-      ...state,
-      isAlgoritmWork: true,
-      isDeleteTail: true,
-    });
-    //setNewRender(nanoid());
-    setTimeout(() => {
-      linkedList.current.deleteTail();
-      if (linkedList.current.tail) {
-        linkedList.current.tail.value.tail = TAIL;
-      }
-      setState({
-        ...state,
-        isAlgoritmWork: false,
-        isDeleteTail: false,
-      });
-      //setNewRender(nanoid());
-    }, SHORT_DELAY_IN_MS)
-  };
 
-  const addByIndex = () => {
-    const newElement = creatNewElement('');
-    const smallCircle = creatSmallCircle(newElement);
-    const elementsArray: LinkedListNode<ILinkedListNode>[] = [];
-    let currElement: LinkedListNode<ILinkedListNode> | null = linkedList.current.head;
-    let index = 0;
-    const inputIndex = indexInputRef.current && Number(indexInputRef.current.value);
-    currElement.value.head = smallCircle;
-    setState({
-      ...state,
-      isAlgoritmWork: true,
-      isAddByIndex: true,
-    });
-    //setNewRender(nanoid());
-    setTimeout(function move() {
-      if (currElement && currElement.next && inputIndex !== 0) {
-        if (currElement === linkedList.current.head) {
-          currElement.value.head = 'HEAD';
-        } else {
-          currElement.value.head = '';
-        }
-        currElement.value.state = ElementStates.Changing;
-        elementsArray.push(currElement);
-        currElement = currElement.next;
-        currElement.value.head = smallCircle;
-        index++;
-        setNewRender(nanoid());
-      }
-      if (inputIndex !== null && index < inputIndex) {
-        setTimeout(move, SHORT_DELAY_IN_MS);
-      } else {
-        setTimeout(() => {
-          const newListElement = linkedList.current.addByIndex(newElement, index);
-          elementsArray.push(newListElement);
-          if (currElement !== null) {
-            currElement.value.head = '';
-          }
-          if (inputIndex === 0) {
-            newListElement.value.head = HEAD;
-          }
-          setNewRender(nanoid());
-          setTimeout(() => {
-            elementsArray.forEach(item => {
-              item.value.state = ElementStates.Default;
-            });
-            if (stringInputRef.current && indexInputRef.current) {
-              stringInputRef.current.value = '';
-              indexInputRef.current.value = '';
-            }
-            setIsStringInputEmpty(true);
-            setIsIndexInputEmpty(true);
-            setState({
-              ...state,
-              isAlgoritmWork: false,
-              isAddByIndex: false,
-            });
-          }, SHORT_DELAY_IN_MS)
-        }, SHORT_DELAY_IN_MS);
-      }
-    }, SHORT_DELAY_IN_MS)
-  };
+    await delay(time);
+    setInputValue('');
+    setColorChanging(NaN)
+    setColorSmall(+inputIndex);
+    setTailIndex(list.getTailIndex());
+    setHeadSmallCircle(NaN)
+    setListItems(list.print());
+    await delay(time);
+    setColorSmall(NaN);
+    setLoader(NaN);
+  }
 
-  const deleteByIndex = () => {
-    if (indexInputRef.current) {
-      setState({
-        ...state,
-        isAlgoritmWork: true,
-        isDeleteByIndex: true,
-      });
-      let index = 0;
-      const inputIndex = Number(indexInputRef.current.value);
-      const elementsArray: LinkedListNode<ILinkedListNode>[] = [];
-      let currElement = linkedList.current.head;
-      setTimeout(function findElementByIndex() {
-        currElement.value.state = ElementStates.Changing;
-        elementsArray.push(currElement);
-        index++;
-        setNewRender(nanoid());
-        if (index <= inputIndex) {
-          if (currElement.next) {
-            currElement = currElement.next;
-          }
-          setTimeout(findElementByIndex, SHORT_DELAY_IN_MS);
-        } else {
-          setTimeout(() => {
-            const currListNode = linkedList.current.getElementByPositionNumber(inputIndex + 1);
-            const smallCircle = creatSmallCircle(currListNode.value);
-            currListNode.value.tail = smallCircle;
-            currListNode.value.state = ElementStates.Default;
-            currListNode.value.string = '';
-            setNewRender(nanoid());
-            setTimeout(() => {
-              linkedList.current.deleteByIndex(inputIndex);
-              if (linkedList.current.tail) {
-                linkedList.current.tail.value.tail = TAIL;
-              }
-              if (inputIndex === 0) {
-                linkedList.current.head.value.head = HEAD;
-              }
-              setNewRender(nanoid());
-              setTimeout(() => {
-                elementsArray.forEach(item => {
-                  item.value.state = ElementStates.Default;
-                });
-                if (indexInputRef.current) {
-                  indexInputRef.current.value = ''
-                }
-                setIsIndexInputEmpty(true);
-                setState({
-                  ...state,
-                  isAlgoritmWork: false,
-                  isDeleteByIndex: false,
-                });
-              }, SHORT_DELAY_IN_MS);
-            }, SHORT_DELAY_IN_MS);
-          }, SHORT_DELAY_IN_MS);
-        }
-      }); 
+  const popToIndex = async () => {
+    setLoader(6);
+    list.popToIndex(+inputIndex);
+    for (let i = 0; i <= +inputIndex + 1; i++) {
+      setColorChanging(i)
+      await delay(time);
     }
-  };
+    setTailSmallCircle(+inputIndex);
+    setDelItem(+inputIndex);
+    setColorChanging(+inputIndex);
+    await delay(time);
+    setInputValue('');
+    setColorChanging(NaN);
+    setTailSmallCircle(NaN)
+    setColorSmall(NaN);
+    setListItems(list.print());
+    setTailIndex(list.getTailIndex());
+    setDelItem(NaN);
+    setLoader(NaN);
+  }
 
-  const creatCircleElements = (linkedListHead: LinkedListNode<ILinkedListNode>): 
-    JSX.Element[] => {
-    const array: JSX.Element[] = [];
-    let listElement: LinkedListNode<ILinkedListNode> | null = linkedListHead;
-    let index = 0;
-    do {
-      if (listElement !== null) {
-        array.push(
-          <div className={styles.itemJsxArray} key={listElement.value.uuid}>
-            <Circle
-              state={listElement.value.state}
-              letter={listElement.value.string}
-              head={listElement.value.head}
-              index={index}
-              tail={listElement.value.tail}
-              extraClass={styles.circle}
-            />
-            {listElement.next !== null && <ArrowIcon/>}
-          </div>
-        )
-        index++;
-        listElement = listElement.next;
-      }
-    } while (listElement !== null);
-    return array;
-  };
-  const circleElements: JSX.Element[] = creatCircleElements(linkedList.current.head);
+  const popTail = async () => {
+
+    setLoader(4);
+    setTailIndex(list.getTailIndex());
+    setTailSmallCircle(tailIndex);
+    list.popTail();
+    await delay(time);
+    setInputValue('');
+    setTailIndex(list.getTailIndex());
+    setTailSmallCircle(NaN);
+    setListItems(list.print());
+    setLoader(NaN);
+  }
+  const popHead = async () => {
+
+    setLoader(3);
+    setHeadIndex(list.getHeadIndex());
+    setTailSmallCircle(headIndex);
+    list.popHead();
+    await delay(time);
+    setInputValue('');
+    setHeadIndex(list.getHeadIndex());
+    setTailSmallCircle(NaN);
+    setListItems(list.print());
+    setTailIndex(list.getTailIndex());
+    setLoader(NaN);
+  }
+
+  const validationIndex = ((inputIndex! > list.getSize()) || (inputIndex! < 0)) ? true : false;
+  const validationInputIndex = inputIndex ? false : true;
+  const validationInputValue = inputValue ? false : true;
+  const validationLoader = (index: number) => {
+    if (loader && loader !== index) {
+      return true
+    } else {
+      return false
+    }
+  }
 
   return (
     <SolutionLayout title="Связный список">
+      <form onSubmit={e => e.preventDefault()} className={styles.form}>
+        <Input
+          extraClass={styles.input}
+          maxLength={4}
+          isLimitText={true}
+          placeholder={'Введите значение'}
+          onChange={e => onChange(e)}
+          value={inputValue}
+        />
+        <Button
+          extraClass={styles.btn}
+          text={'Добавить в head'}
+          isLoader={loader === 1}
+          onClick={addHead}
+          disabled={validationInputValue || validationLoader(1)}
+        />
+        <Button
+          extraClass={styles.btn}
+          text={'Добавить в tail'}
+          isLoader={loader === 2}
+          onClick={addTail}
+          disabled={validationInputValue || validationLoader(2)}
+        />
+        <Button
+          extraClass={styles.btn}
+          text={'Удалить из head'}
+          isLoader={loader === 3}
+          onClick={popHead}
+          disabled={validationLoader(3) }
+        />
+        <Button
+          extraClass={styles.btn}
+          text={'Удалить из tail'}
+          isLoader={loader === 4}
+          onClick={popTail}
+          disabled={validationLoader(4)}
+        />
+      </form>
+      <form onSubmit={e => e.preventDefault()} className={`${styles.form} ${styles.formIndex}`}>
+        <Input
+          max={list.getSize()}
+          type='number'
+          isLimitText={true} extraClass={styles.input}
+          placeholder={'Введите индекс'}
+          onChange={e => onChangeIndex(e)}
+          value={inputIndex}
+        />
+        <Button
+          extraClass={styles.btnIndex}
+          text={'Добавить по индексу'}
+          onClick={addToIndex}
+          isLoader={loader === 5}
+          disabled={validationIndex || validationInputIndex || validationInputValue || validationLoader(5)}
+        />
+        <Button
+          extraClass={styles.btnIndex}
+          text={'Удалить по индексу'}
+          onClick={popToIndex}
+          isLoader={loader === 6}
+          disabled={validationIndex || validationInputIndex || validationLoader(6)}
+        />
 
-      <div className={styles.controlContainer}>
-        <Input
-          placeholder = "Введите значение"
-          maxLength={4}
-          extraClass={`${styles.input} input-string-container`}
-          value={value}
-          onChange={checkStringInput}
-          disabled={state.isAlgoritmWork}
-          onInput={(event: React.ChangeEvent<HTMLInputElement>) => {
-            setValue(event.target.value);
-          }}
-        />
-        <Button
-          text="Добавить в head"
-          linkedList="small"
-          extraClass={styles.button}
-          onClick={addNewHead}
-          disabled={isStringInputEmpty || state.isAlgoritmWork}
-          isLoader={state.isAddHead}
-        />
-        <Button
-          text="Добавить в tail"
-          linkedList="small"
-          extraClass={styles.button}
-          onClick={addNewTail}
-          disabled={isStringInputEmpty || state.isAlgoritmWork}
-          isLoader={state.isAddTail}
-        />
-        <Button
-          text="Удалить из head"
-          linkedList="small"
-          extraClass={styles.button}
-          onClick={deleteHead}
-          disabled={state.isAlgoritmWork}
-          isLoader={state.isDeleteHead}
-        />
-        <Button
-          text="Удалить из tail"
-          linkedList="small"
-          onClick={deleteTail}
-          disabled={state.isAlgoritmWork}
-          isLoader={state.isDeleteTail}
-        />
-        <Input
-          placeholder = "Введите индекс"
-          type="number"
-          maxLength={4}
-          extraClass={`${styles.input} input-index-container`}
-          value={input}
-          onChange={checkIndexInput}
-          disabled={state.isAlgoritmWork}
-          onInput={(event: React.ChangeEvent<HTMLInputElement>) => {
-            inputText(event.target.value);
-          }}
-        />
-        <Button
-          text="Добавить по индексу"
-          linkedList="big"
-          extraClass={styles.button}
-          disabled={isStringInputEmpty || isIndexInputEmpty || state.isAlgoritmWork || !isIndexFit}
-          onClick={addByIndex}
-          isLoader={state.isAddByIndex}
-        />
-        <Button
-          text="Удалить по индексу"
-          linkedList="big"
-          disabled={isIndexInputEmpty || state.isAlgoritmWork || !isIndexFit}
-          onClick={deleteByIndex}
-          isLoader={state.isDeleteByIndex}
-        />
-      </div>
-      <div className={styles.circlesContainer}>
-        {circleElements}
-      </div>
+      </form>
+      {listItems &&
+        <ul className={styles.circle}>
+
+          {listItems?.map((item, index) => {
+            return (
+              <li className={styles.circleItems} key={index}>
+                < Circle
+                  head={
+                    headSmallCircle === index ?
+                      <Circle state={'changing'} letter={inputValue} isSmall />
+                      : headIndex === index ? 'head' : ''
+                  }
+                  letter={delItem === index ? '' : item}
+                  key={index}
+                  index={index}
+                  state={colorChanging && colorChanging > index ? 'changing' : colorSmall === index ? 'modified' : 'default'}
+                  tail={tailSmallCircle === index ?
+                    <Circle state={'changing'} letter={item} isSmall />
+                    : tailIndex === index ? 'tail' : ''}
+                />
+                {
+                  (index < listItems.length - 1) &&
+                  < ArrowIcon />
+                }
+              </li>
+            )
+          })}
+        </ul>
+      }
+
     </SolutionLayout>
-  );
-};
+  )
+}  

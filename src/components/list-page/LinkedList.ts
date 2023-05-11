@@ -1,103 +1,168 @@
-import { LinkedListNode } from "./linkedListNode";
-export class LinkedList<T> {
-  head: LinkedListNode<T>;
-  tail: LinkedListNode<T> | undefined;
-  length: number;
-  constructor(initializingArray: T[]) {
-    this.length = 0;
-    this.head = this._creatInitializingList(initializingArray);
+export class Node<T> {
+  value: T
+  next: Node<T> | null;
+  constructor(value: T, next?: Node<T>) {
+      this.value = value;
+      this.next = (next === undefined ? null : next)
   }
+}
 
-  _creatInitializingList(initializingArray: T[]) {
-    let head = new LinkedListNode<T>(initializingArray[initializingArray.length - 1]);
-    this.tail = head;
-    this.length += 1;
-    for (let i = initializingArray.length - 2; i >= 0; i--) {
-      const newLinkedListNode = new LinkedListNode<T>(initializingArray[i], head);
-      head = newLinkedListNode;
-      this.length += 1;
-    }
-    return head;
+interface ILinkedList<T> {
+  addTail: (el: T) => void;
+  getSize: () => number;
+  print?: () => void;
+}
+
+export class LinkedListNode<T> {
+  value: T;
+  next: LinkedListNode<T> | null;
+  constructor(value: T, next: LinkedListNode<T> | null = null) {
+    this.value = value;
+    this.next = next;
   }
-
-  prepend(newElement: T) {
-    const newHead = new LinkedListNode<T>(newElement, this.head);
-    this.head = newHead;
-    this.length += 1;
-  }
-
-  getElementByPositionNumber(number: number) {
-    let element = this.head;
-    for (let i = 2; i <= number; i++) {
-      if (element.next) {
-        element = element.next;
+}
+export class LinkedList<T> implements ILinkedList<T> {
+  private head: Node<T> | null;
+  private size: number;
+  private headIndex: number;
+  private tailIndex: number;
+  constructor(values: T[]) {
+      this.head = null;
+      this.size = 0;
+      this.headIndex = 0;
+      this.tailIndex = 0;
+      if (values.length) {
+          this.appendArray(values)
       }
-    }
-    return element;
-  }
-  _getPenultimateElement() {
-    let listNode = this.head;
-    if (listNode.next === null || listNode.next.next === null) {
-      return listNode
-    }
-    while (listNode.next && listNode.next.next !== null) {
-      listNode = listNode.next;
-    }
-    return listNode;
-  }
-  append(newElement: T) {
-    const newTail = new LinkedListNode<T>(newElement);
-    if (this.tail) {
-      this.tail.next = newTail;
-      this.tail = newTail;
-      this.length += 1;
-    }
   }
 
-  deleteHead() {
-    if (this.head.next !== null) {
-      this.head = this.head.next;
-      this.length -= 1;
-    }
+  appendArray(values: T[]) {
+      values.forEach(value => this.addTail(value))
   }
 
-  deleteTail() {
-    const penultimateElement = this._getPenultimateElement();
-    penultimateElement.next = null;
-    this.tail = penultimateElement;
-    this.length -= 1;
+  addHead(element: T) {
+
+      const node = new Node(element);
+      let current;
+      current = this.head
+      this.head = node;
+      this.head!.next = current;
+      this.tailIndex++;
+      this.size++;
+      return this
   }
 
-  addByIndex(newElement: T, index: number) {
-    const newListPart = new LinkedListNode<T>(newElement);
-    if (index === 0) {
-      this.prepend(newElement);
-      return newListPart;
-    }
-    let prev = null;
-    let curr: LinkedListNode<T> | null = this.head;
-    for (let i = 1; i <= index; i++) {
-      prev = curr;
-      curr = curr && curr.next
-    }
-    if (prev) {
-      prev.next = newListPart;
-      newListPart.next = curr;
-    }
-    this.length += 1;
-    return newListPart;
+  addTail(element: T) {
+
+      const node = new Node(element);
+      let current;
+
+      if (this.head === null) {
+          this.head = node;
+          return this;
+      } else {
+          current = this.head;
+          while (current.next) {
+              current = current.next;
+          }
+          current.next = node;
+      }
+      this.size++;
+      this.tailIndex++;
+
+      return this;
+  }
+  addToIndex(element: T, index: number) {
+      const node = new Node(element);
+      let current;
+      let prev;
+      current = this.head;
+      prev = current;
+      if (!this.head) {
+          this.head = node;
+          this.tailIndex++;
+          this.size++
+          return this
+      }
+
+      if (index === 0) {
+          this.head = node;
+          this.head!.next = current;
+          this.tailIndex++;
+          this.size++
+          return this
+      }
+
+      for (let i = 0; i < index; i++) {
+          prev = current;
+          current = current!.next;
+      }
+
+      prev!.next = node;
+      node.next = current;
+      this.tailIndex++;
+      this.size++
+
+      return this
   }
 
-  deleteByIndex(index: number) {
-    const prevListNode = this.getElementByPositionNumber(index);
-    if (prevListNode.next && prevListNode.next.next && index !== 0) {
-      prevListNode.next = prevListNode.next.next;
-    } else if (prevListNode.next && prevListNode.next.next === null) {
-      prevListNode.next = null;
-      this.tail = prevListNode;
-    } if (index === 0) {
-      this.deleteHead()
-    }
-    this.length -= 1;
+  popToIndex(index: number) {
+      let current = this.head;
+      let prev = current;
+      if (!this.head) {
+          return this
+      }
+      if (index === 0) {
+          this.head = this.head!.next;
+          this.tailIndex--;
+          this.size--;
+          return this
+      }
+      for (let i = 0; i < index; i++) {
+          prev = current;
+          current = current!.next;
+      }
+      prev!.next = current!.next;
+      this.tailIndex--;
+      this.size--;
+      return this
   }
+
+  popHead() {
+      if (!this.head) {
+          return this
+      } else {
+          this.head = this.head.next
+      }
+      this.tailIndex--;
+      this.size--;
+  }
+
+  popTail() {
+      if (!this.head) {
+          return this
+      } else {
+          let prev = this.head;
+          while (prev.next?.next) {
+              prev = prev.next
+          }
+          prev.next = null
+      }
+      this.size--;
+      this.tailIndex--;
+      return this;
+  }
+
+  print() {
+      let curr = this.head;
+      let res = [];
+      while (curr) {
+          res.push(`${curr.value}`);
+          curr = curr.next;
+      }
+      return res;
+  }
+  getSize = () => this.size;
+  getHeadIndex = () => this.headIndex;
+  getTailIndex = () => this.tailIndex;
 }
