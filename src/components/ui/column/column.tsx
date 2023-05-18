@@ -4,7 +4,7 @@ import { ElementStates } from "../../../types/element-states";
 
 interface ColumnProps {
   index: number;
-  state?: ElementStates;
+  state?: string;
   extraClass?: string;
 }
 

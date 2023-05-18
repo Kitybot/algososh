@@ -1,0 +1,43 @@
+.button{
+  width: 205px;
+  margin-right: 12px;
+}
+
+.button:nth-of-type(2n){
+  margin-right: 80px;
+}
+
+.button:last-of-type{
+  margin-right: 0;
+}
+
+.controlContainer{
+  display: flex;
+  align-items: center;
+  width: fit-content;
+  margin: 0 auto;
+}
+
+.radioInput{
+  margin-right: 40px;
+}
+
+.radioInput:last-of-type{
+  margin-right: 56px;
+}
+
+.columnsContainer{
+  display: flex;
+  align-items: flex-end;
+  width: fit-content;
+  min-height: 362px;
+  margin: 48px auto 0;
+}
+
+.column{
+  margin-right: 10px;
+}
+
+.column:last-child{
+  margin-right: 0;
+}

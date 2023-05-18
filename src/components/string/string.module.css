@@ -1,0 +1,25 @@
+.stringsContainer{
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  margin-top: 120px;
+}
+
+.elementsContainer{
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.input{
+  width: 377px;
+  margin-right: 12px;
+}
+
+.extraCircle{
+  margin-right: 16px;
+}
+
+.extraCircle:last-child{
+  margin-right: 0;
+}
