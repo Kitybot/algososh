@@ -1,0 +1,8 @@
+{
+    "compilerOptions": {
+      "target": "es5",
+      "lib": ["es5", "dom"],
+      "types": ["cypress", "node"]
+    },
+    "include": ["**/*.ts", "integration/stack.cy.js", "integration/routing.cy.js", "integration/queue.cy.js", "integration/list.cy.ts", "integration/app.cy.js"]
+  }

@@ -22,6 +22,7 @@ interface IIsSorting {
 export type TNumber = Array<{
   number: number
   color: string
+  
 }>
 
 export const SortingPage: React.FC = () => {

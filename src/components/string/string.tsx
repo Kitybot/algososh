@@ -1,4 +1,4 @@
-import React, { useState, useEffect, ChangeEvent } from "react";
+import React, { useState, useEffect, ChangeEvent, useRef } from "react";
 import { SolutionLayout } from "../ui/solution-layout/solution-layout";
 import { Input } from "../ui/input/input";
 import styles from "./string.module.css";
@@ -14,10 +14,15 @@ export const StringComponent: React.FC = () => {
   const [mark, setMark] = useState<boolean>(false);
   const [isStringInvert, setIsStringInvert] = useState<boolean>(false);
   const [inputValue, setInputValue] = useState<string>('');
+  const [ isInputEmpty, setIsInputEmpty ] = useState<boolean>(true);
+  const input = useRef(null);
+
   
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     setInputValue(event.target.value);
   };
+
+
 
   // разворот строки
   useEffect(() => {
@@ -77,6 +82,7 @@ export const StringComponent: React.FC = () => {
       }
     }
   }, [mark]);
+  
 
   // формирование из введенной в input строки массива элементов строки
   const handleClick = () => {
@@ -116,7 +122,7 @@ export const StringComponent: React.FC = () => {
           text='Развернуть'
           onClick={handleClick}
           isLoader={isStringInvert}
-          disabled={isStringInvert}
+          disabled={isStringInvert || isInputEmpty}
         />
       </div>
       <div className={styles.stringsContainer}>

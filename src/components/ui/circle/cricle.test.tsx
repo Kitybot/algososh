@@ -1,55 +1,69 @@
-import { render } from "@testing-library/react"
-import { Circle } from "./circle";
+import TestRenderer from 'react-test-renderer';
+import { Circle } from './circle';
+import { ElementStates } from '../../../types/element-states';
 
+describe('Тестирование компонента Circle.', () => {
 
-describe('Circle component', () => {
-    test('rendering: without a letter', () => {
-      const { asFragment } = render(<Circle/>);
-      expect(asFragment()).toMatchSnapshot();
-    });
-    test('rendering: with letters', () => {
-        const { asFragment } = render(<Circle letter="q"/>);
-        expect(asFragment()).toMatchSnapshot();
-    });
-    test('rendering: head', () => {
-      const { asFragment } = render(<Circle head='head'/>);
-      expect(asFragment()).toMatchSnapshot();
-    });
-    test('rendering: react-element in head', () => {
-      const { asFragment } = render(<Circle head={<Circle/>}/>);
-      expect(asFragment()).toMatchSnapshot();
-    });
-    test('rendering: tail', () => {
-      const { asFragment } = render(<Circle tail='qwer'/>);
-      expect(asFragment()).toMatchSnapshot();
-    });
-    test('rendering: react-element in tail', () => {
-        const { asFragment } = render(<Circle tail={<Circle/>}/>);
-        expect(asFragment()).toMatchSnapshot();
-    });
-    test('rendering: index', () => {
-      const { asFragment } = render(<Circle index={1}/>);
-      expect(asFragment()).toMatchSnapshot();
-    });
-    test('rendering: propom', () => {
-      const { asFragment } = render(<Circle tail='qwer'/>);
-      expect(asFragment()).toMatchSnapshot();
-    });
-    test('rendering: isSmall', () => {
-      const { asFragment } = render(<Circle isSmall={true}/>);
-      expect(asFragment()).toMatchSnapshot();
-    });
-    test('rendering: default', () => {
-      const { asFragment } = render(<Circle state={'default'}/>);
-      expect(asFragment()).toMatchSnapshot();
-    });
-    test('rendering: changing', () => {
-      const { asFragment } = render(<Circle state={'changing'}/>);
-      expect(asFragment()).toMatchSnapshot();
-    });
-    test('rendering: modified', () => {
-        const { asFragment } = render(<Circle state={'modified'}/>);
-        expect(asFragment()).toMatchSnapshot();
-    });
+  it('Circle без текста', () => {
+    const tree = TestRenderer.create(<Circle/>).toJSON();
+    expect(tree).toMatchSnapshot();
+  });
 
+  it('Circle с текстом', () => {
+    const tree = TestRenderer.create(<Circle letter='Text'/>).toJSON();
+    expect(tree).toMatchSnapshot();
+  });
+
+  it('Circle с head', () => {
+    const tree = TestRenderer.create(<Circle head='head'/>).toJSON();
+    expect(tree).toMatchSnapshot();
+  });
+
+  it('Circle с react-элементом в head', () => {
+    const reactElement =  <Circle
+                            letter='Text'
+                            isSmall={true}
+                          />;
+    const tree = TestRenderer.create(<Circle head={reactElement}/>).toJSON();
+    expect(tree).toMatchSnapshot();
+  });
+
+  it('Circle с tail', () => {
+    const tree = TestRenderer.create(<Circle tail='tail'/>).toJSON();
+    expect(tree).toMatchSnapshot();
+  });
+
+  it('Circle с react-элементом в tail', () => {
+    const reactElement =  <Circle
+                            letter='Text'
+                            isSmall={true}
+                          />;
+    const tree = TestRenderer.create(<Circle tail={reactElement}/>).toJSON();
+    expect(tree).toMatchSnapshot();
+  });
+
+  it('Circle с index', () => {
+    const tree = TestRenderer.create(<Circle index={0}/>).toJSON();
+    expect(tree).toMatchSnapshot();
+  });
+
+  it('Circle с пропсом isSmall={true}', () => {
+    const tree = TestRenderer.create(<Circle isSmall={true}/>).toJSON();
+    expect(tree).toMatchSnapshot();
+  });
+
+  it('Circle в состоянии default', () => {
+    const tree = TestRenderer.create(<Circle state={ElementStates.Default}/>).toJSON();
+    expect(tree).toMatchSnapshot();
+  });
+  
+  it('Circle в состоянии changing', () => {
+    const tree = TestRenderer.create(<Circle state={ElementStates.Changing}/>).toJSON();
+    expect(tree).toMatchSnapshot();
+  });
+
+  it('Circle в состоянии modified', () => {
+    const tree = TestRenderer.create(<Circle state={ElementStates.Modified}/>).toJSON();
+    expect(tree).toMatchSnapshot();
+  });
 });

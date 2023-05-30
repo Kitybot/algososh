@@ -1,40 +1,57 @@
-describe('app works correctly with routes', () => {
+import {
+  linkToString, 
+  linkToFibonacci, 
+  linkToSortingPage, 
+  linkToStackPage, 
+  linkToQueuePage, 
+  linkToListPage, 
+} from '../constants';
+
+describe('Проверка роутинга приложения.', () => {
+
   beforeEach(() => {
-    cy.visit('/');
-    cy.get('[data-testid=navigation]').as('mainNavigation');
+    cy.visit('/')
   });
-  const testRoute = (page, title) => () => {
-    cy.get('@mainNavigation').should('exist');
-    cy.get(`[href$=${page}]`).click();
-    cy.get('@mainNavigation').should('not.exist');
-    cy.contains(title, { matchCase: false }).should('exist');
-    cy.get('[data-testid=returnBtn]').click();
-    cy.get('@mainNavigation').should('exist');
-  };
 
-  it(
-    'should open reverse string visualizer and come back to main',
-    testRoute('recursion', 'строка')
-  );
+  afterEach(() => {
+    cy.get('button').contains('К оглавлению').click();
+    cy.contains('МБОУ АЛГОСОШ');
+  });
 
-  it(
-    'should open fib calc visualizer and come back to main',
-    testRoute('fibonacci', 'последовательность фибоначчи')
-  );
+  it('Строка', () => {
+    cy.get(linkToString).click();
+    cy.contains('Строка');
+    cy.get('button').contains('Развернуть');
+  });
 
-  it(
-    'should open sorting visualizer and come back to main',
-    testRoute('sorting', 'сортировка массива')
-  );
+  it("Последовательность Фибоначчи", () => {
+    cy.get(linkToFibonacci).click();
+    cy.contains('Последовательность Фибоначчи');
+    cy.get('button').contains('Рассчитать');
+  });
 
-  it('should open stack visualizer and come back to main', testRoute('stack', 'стек'));
+  it("Сортировка массива", () => {
+    cy.get(linkToSortingPage).click();
+    cy.contains('Сортировка массива');
+    cy.get('button').contains('Новый массив');
+  });
 
-  it('should open queue visualizer and come back to main', testRoute('queue', 'очередь'));
+  it("Стек", () => {
+    cy.get(linkToStackPage).click();
+    cy.contains('Стек');
+    cy.get('button').contains('Очистить');
+  });
 
-  it(
-    'should open linked-list visualizer and come back to main',
-    testRoute('list', 'связный список')
-  );
+  it("Очередь", () => {
+    cy.get(linkToQueuePage).click();
+    cy.contains('Очередь');
+    cy.get('button').contains('Очистить');
+  });
+
+  it("Связнный список", () => {
+    cy.get(linkToListPage).click();
+    cy.contains('Связный список');
+    cy.get('button').contains('Удалить по индексу');
+  });
+  
 });
-
-export {};

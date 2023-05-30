@@ -1,28 +1,41 @@
-import { fireEvent, render } from "@testing-library/react"
-import { Button } from "./button"
+import React from 'react';
+import renderer from 'react-test-renderer';
+import { Button } from './button';
+import { render, screen, fireEvent } from '@testing-library/react';
 
-describe('Button component', () => {
-    test('rendering: buttons with text', () => {
-      const { asFragment } = render(<Button text="unit test"/>);
-      expect(asFragment()).toMatchSnapshot();
-    });
-    test('rendering: buttons without text', () => {
-        const { asFragment } = render(<Button/>);
-        expect(asFragment()).toMatchSnapshot();
-    });
-    test('rendering: the locked button', () => {
-        const { asFragment } = render(<Button disabled/>);
-        expect(asFragment()).toMatchSnapshot();
-    });
-    test('rendering: buttons with loading indication', () => {
-        const { asFragment } = render(<Button isLoader/>);
-        expect(asFragment()).toMatchSnapshot();
-    });
-    test('We check the correctness of the callback call when clicking on the button', () => {
-        const handleClick = jest.fn();
-        const { getByText } = render(<Button text="button" onClick={handleClick} />);
-        const button = getByText('button');
-        fireEvent.click(button);
-        expect(handleClick).toHaveBeenCalledTimes(1);
-    });
+describe('Рендеринг Кнопки', () => {
+
+  it('Кнопка с текстом', () => {
+    const tree = renderer.create(<Button text='Кнопка' type='button'/>).toJSON();
+    expect(tree).toMatchSnapshot();
+  });
+
+  it('Кнопка без текста', () => {
+    const tree = renderer.create(<Button type='button'/>).toJSON();
+    expect(tree).toMatchSnapshot();
+  })
+
+  it('Заблокированная кнопка', () => {
+    const tree = renderer.create(<Button type='button' disabled={true}/>).toJSON();
+    expect(tree).toMatchSnapshot();
+  });
+
+  it('Кнопка с активным лоадером', () => {
+    const tree = renderer.create(<Button type='button' isLoader={true}/>).toJSON();
+    expect(tree).toMatchSnapshot();
+  });
+
+  it('Вызов колбэка при нажатии на кнопку', () => {
+    window.alert = jest.fn();
+    render(
+      <Button 
+        type='button' 
+        text='Кнопка' 
+        onClick={() => {alert('Кнопка нажата')}}
+      />
+    );
+    const button = screen.getByText('Кнопка');
+    fireEvent.click(button);
+    expect(window.alert).toHaveBeenCalledWith('Кнопка нажата');
+  })
 });
