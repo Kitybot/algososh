@@ -104,6 +104,7 @@ export const StringComponent: React.FC = () => {
 
       <div className={styles.elementsContainer}>
         <Input 
+          placeholder="Введите текст"
           maxLength={11}
           isLimitText={true}
           extraClass={`${styles.input} input-in-container`}
