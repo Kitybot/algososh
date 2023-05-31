@@ -15,7 +15,6 @@ export const StringComponent: React.FC = () => {
   const [isStringInvert, setIsStringInvert] = useState<boolean>(false);
   const [inputValue, setInputValue] = useState<string>('');
   const [ isInputEmpty, setIsInputEmpty ] = useState<boolean>(true);
-  const input = useRef(null);
 
   
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {

@@ -1,32 +1,22 @@
-import { 
-  textInCircleSelector, 
-  circlDefaultColor, 
-  linkToStackPage, 
-} from '../constants';
-
-const inputTextPlaceholder = 'input[placeholder="Введите текст"]';
-const buttonAddName = 'Добавить';
-const buttonDeleteName = 'Удалить';
-const buttonClearName = 'Очистить';
-
 describe('Компонент Стек', () => {
 
   beforeEach(() => {
-    cy.visit('/');
-    cy.get(linkToStackPage).click();
+    cy.viewport(1280, 900);
+    cy.visit('http://localhost:3000');
+    cy.get('a[href*="stack"]').click();
   });
 
   it('Доступность кнопки Добавить', () => {
-    cy.get(inputTextPlaceholder).should('be.empty');
-    cy.contains(buttonAddName).should('be.disabled');
-    cy.get(inputTextPlaceholder).type('s');
-    cy.contains(buttonAddName).should('be.enabled');
+    cy.get('input[placeholder="Введите текст"]').should('be.empty');
+    cy.contains('Добавить').should('be.disabled');
+    cy.get('input[placeholder="Введите текст"]').type('s');
+    cy.contains('Добавить').should('be.enabled');
   });
 
   it('Добавление элемента в стек', () => {
-    cy.get(inputTextPlaceholder).type('a');
-    cy.contains(buttonAddName).click();
-    cy.get(textInCircleSelector)
+    cy.get('input[placeholder="Введите текст"]').type('a');
+    cy.contains('Добавить').click();
+    cy.get('p[data-testid="text-in-circle"]')
       .parent()
       .should('have.length', '1')
       .and('have.css', 'border-color', 'rgb(210, 82, 225)')
@@ -35,21 +25,21 @@ describe('Компонент Стек', () => {
       .should('have.text', 'top');
     cy.wait(500)
       .then(() => {})
-      .get(textInCircleSelector)
+      .get('p[data-testid="text-in-circle"]')
       .parent()
-      .should('have.css', 'border-color', circlDefaultColor)
+      .should('have.css', 'border-color', 'rgb(0, 50, 255)')
       .next()
       .should('have.text', '0');
-    cy.get(inputTextPlaceholder).type('b');
-    cy.contains(buttonAddName).click();
-    cy.get(textInCircleSelector)
+    cy.get('input[placeholder="Введите текст"]').type('b');
+    cy.contains('Добавить').click();
+    cy.get('p[data-testid="text-in-circle"]')
       .should('have.length', '2')
       .each((item, index) => {
         if (index === 0) {
           cy.wrap(item)
             .should('have.text', 'a')
             .parent()
-            .should('have.css', 'border-color', circlDefaultColor)
+            .should('have.css', 'border-color', 'rgb(0, 50, 255)')
             .prev()
             .should('be.empty')
             .next().next()
@@ -68,26 +58,26 @@ describe('Компонент Стек', () => {
       });
     cy.wait(500)
       .then(() => {})
-      .get(textInCircleSelector)
+      .get('p[data-testid="text-in-circle"]')
       .parent()
       .eq(1)
-      .should('have.css', 'border-color', circlDefaultColor);
+      .should('have.css', 'border-color', 'rgb(0, 50, 255)');
   });
 
   it('Удаление элемента из стека', () => {
-    cy.get(inputTextPlaceholder).type('a');
-    cy.contains(buttonAddName).click();
-    cy.contains(buttonDeleteName).should('be.enabled');
-    cy.get(inputTextPlaceholder).type('b');
-    cy.contains(buttonAddName).click();
-    cy.contains(buttonDeleteName).should('be.enabled').click();
-    cy.get(textInCircleSelector)
+    cy.get('input[placeholder="Введите текст"]').type('a');
+    cy.contains('Добавить').click();
+    cy.contains('Удалить').should('be.enabled');
+    cy.get('input[placeholder="Введите текст"]').type('b');
+    cy.contains('Добавить').click();
+    cy.contains('Удалить').should('be.enabled').click();
+    cy.get('p[data-testid="text-in-circle"]')
       .each((item, index) => {
         if (index === 0) {
           cy.wrap(item)
             .should('have.text', 'a')
             .parent()
-            .should('have.css', 'border-color', circlDefaultColor)
+            .should('have.css', 'border-color', 'rgb(0, 50, 255)')
             .prev()
             .should('be.empty')
             .next().next()
@@ -104,34 +94,34 @@ describe('Компонент Стек', () => {
             .should('have.text', `${index}`);
         }
       });
-    cy.get(textInCircleSelector, {timeout: 500})
+    cy.get('p[data-testid="text-in-circle"]', {timeout: 500})
       .should('have.text', 'a')
       .parent()
-      .should('have.css', 'border-color', circlDefaultColor)
+      .should('have.css', 'border-color', 'rgb(0, 50, 255)')
       .prev()
       .should('have.text', 'top')
       .next().next()
       .should('have.text', `0`);
-    cy.contains(buttonDeleteName).click();
-    cy.get(textInCircleSelector)
+    cy.contains('Удалить').click();
+    cy.get('p[data-testid="text-in-circle"]')
       .parent()
       .should('have.css', 'border-color', 'rgb(210, 82, 225)');
-    cy.get(textInCircleSelector, {timeout: 500})
+    cy.get('p[data-testid="text-in-circle"]', {timeout: 500})
       .should('have.length', '0');
   });
 
   it('Очистка стека', () => {
-    cy.get(inputTextPlaceholder).type('a');
-    cy.contains(buttonAddName).click();
-    cy.contains(buttonClearName).should('be.enabled');
-    cy.get(inputTextPlaceholder).type('b');
-    cy.contains(buttonAddName).click();
-    cy.contains(buttonClearName).should('be.enabled');
-    cy.get(inputTextPlaceholder).type('с');
-    cy.contains(buttonAddName).click();
-    cy.get(textInCircleSelector).should('have.length', '3');
-    cy.contains(buttonClearName).click();
-    cy.get(textInCircleSelector).should('have.length', '0');
+    cy.get('input[placeholder="Введите текст"]').type('a');
+    cy.contains('Добавить').click();
+    cy.contains('Очистить').should('be.enabled');
+    cy.get('input[placeholder="Введите текст"]').type('b');
+    cy.contains('Добавить').click();
+    cy.contains('Очистить').should('be.enabled');
+    cy.get('input[placeholder="Введите текст"]').type('с');
+    cy.contains('Добавить').click();
+    cy.get('p[data-testid="text-in-circle"]').should('have.length', '3');
+    cy.contains('Очистить').click();
+    cy.get('p[data-testid="text-in-circle"]').should('have.length', '0');
   });
 
 });
