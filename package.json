@@ -49,6 +49,7 @@
     "@types/react-router-dom": "^5.3.3",
     "@types/react-test-renderer": "^18.0.0",
     "@types/tapable": "^2.2.3",
-    "cypress": "^12.13.0"
+    "cypress": "^12.13.0",
+    "jest": "^27.5.1"
   }
 }
