@@ -1,4 +1,3 @@
-import { resolve } from "path";
 import { TNumber } from "../components/sorting-page/sorting-page";
 import { TWord } from "../types/strinf";
 

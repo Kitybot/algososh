@@ -1,4 +1,4 @@
-import React, { useState, useEffect, ChangeEvent, useRef } from "react";
+import React, { useState, useEffect, ChangeEvent } from "react";
 import { SolutionLayout } from "../ui/solution-layout/solution-layout";
 import { Input } from "../ui/input/input";
 import styles from "./string.module.css";
@@ -14,7 +14,6 @@ export const StringComponent: React.FC = () => {
   const [mark, setMark] = useState<boolean>(false);
   const [isStringInvert, setIsStringInvert] = useState<boolean>(false);
   const [inputValue, setInputValue] = useState<string>('');
-  const [ isInputEmpty, setIsInputEmpty ] = useState<boolean>(true);
 
   
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
