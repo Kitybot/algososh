@@ -14,10 +14,13 @@ export const StringComponent: React.FC = () => {
   const [mark, setMark] = useState<boolean>(false);
   const [isStringInvert, setIsStringInvert] = useState<boolean>(false);
   const [inputValue, setInputValue] = useState<string>('');
+
   
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     setInputValue(event.target.value);
   };
+
+
 
   // разворот строки
   useEffect(() => {
@@ -77,6 +80,7 @@ export const StringComponent: React.FC = () => {
       }
     }
   }, [mark]);
+  
 
   // формирование из введенной в input строки массива элементов строки
   const handleClick = () => {
@@ -104,6 +108,7 @@ export const StringComponent: React.FC = () => {
 
       <div className={styles.elementsContainer}>
         <Input 
+          placeholder="Введите текст"
           maxLength={11}
           isLimitText={true}
           extraClass={`${styles.input} input-in-container`}

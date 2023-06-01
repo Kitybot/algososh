@@ -22,6 +22,7 @@ export const QueuePage: React.FC = () => {
   const [isShownTimeout, setIsShownTimeout] = useState<string>('');
 
 
+
   const onChange = (e: React.FormEvent<HTMLInputElement>) => {
     setInputValue(e.currentTarget.value);
   }

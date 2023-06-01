@@ -1,0 +1,59 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Button component rendering: buttons with loading indication 1`] = `
+<DocumentFragment>
+  <button
+    class="text text_type_button text_color_primary button undefined loader "
+    disabled=""
+    type="button"
+  >
+    <img
+      alt="Загрузка."
+      class="loader_icon"
+      src="loader.svg"
+    />
+  </button>
+</DocumentFragment>
+`;
+
+exports[`Button component rendering: buttons with text 1`] = `
+<DocumentFragment>
+  <button
+    class="text text_type_button text_color_primary button undefined false "
+    type="button"
+  >
+    <p
+      class="text undefined"
+    >
+      unit test
+    </p>
+  </button>
+</DocumentFragment>
+`;
+
+exports[`Button component rendering: buttons without text 1`] = `
+<DocumentFragment>
+  <button
+    class="text text_type_button text_color_primary button undefined false "
+    type="button"
+  >
+    <p
+      class="text undefined"
+    />
+  </button>
+</DocumentFragment>
+`;
+
+exports[`Button component rendering: the locked button 1`] = `
+<DocumentFragment>
+  <button
+    class="text text_type_button text_color_primary button undefined false "
+    disabled=""
+    type="button"
+  >
+    <p
+      class="text undefined"
+    />
+  </button>
+</DocumentFragment>
+`;

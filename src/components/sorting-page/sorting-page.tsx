@@ -22,6 +22,7 @@ interface IIsSorting {
 export type TNumber = Array<{
   number: number
   color: string
+  
 }>
 
 export const SortingPage: React.FC = () => {
@@ -32,10 +33,11 @@ export const SortingPage: React.FC = () => {
   const [ isMethodChoice, setIsMethodChoice ] = useState<boolean>(true);
   // состояние процесса сортировки
   const [ isSorting, setIsSorting ] = useState<IIsSorting>({state: false, method:''});
-
+  const [loader, setLoader] = useState<string>('');
   // формирование данных о массиве для сортировки
   const getNewArray = () => {
     const quantity = Math.round((Math.random() * 14) + 3);
+    setLoader('2')
     const array: INumberArray[] = [];
     for (let i = 1; i <= quantity; i++) {
       array.push({
@@ -45,6 +47,7 @@ export const SortingPage: React.FC = () => {
       });
     }
     setNumberArray(array);
+    setLoader('')
   };
   useLayoutEffect(() => {
     getNewArray();
@@ -319,6 +322,7 @@ export const SortingPage: React.FC = () => {
           extraClass={styles.button}
           onClick={getNewArray}
           disabled={isSorting.state}
+          isLoader={loader === '2'? true: false}
         />
       </div>
       <div className={styles.columnsContainer}>
