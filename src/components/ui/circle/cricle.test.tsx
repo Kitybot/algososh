@@ -51,5 +51,5 @@ describe('Circle component', () => {
         const { asFragment } = render(<Circle state={'modified'}/>);
         expect(asFragment()).toMatchSnapshot();
     });
-
+    
 });

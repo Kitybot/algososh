@@ -13,7 +13,7 @@ export const FibonacciPage: React.FC = () => {
   const [buttonState, setButtonState] = useState(true);
 
   const [array, setArray] = useState<number[]>([]);
-  const [value, setValue] = useState('');
+  const [value, setValue] = useState<number | string>('');
 
   const handleChangeValue = (evt: ChangeEvent<HTMLInputElement>) => {
     evt.preventDefault();

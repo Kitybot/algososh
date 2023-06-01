@@ -1,43 +1,25 @@
-import React from "react";
-import { BrowserRouter, Route, Switch } from "react-router-dom";
-import { FibonacciPage } from "../fibonacci-page/fibonacci-page";
-import { ListPage } from "../list-page/list-page";
-import { MainPage } from "../main-page/main-page";
-import { QueuePage } from "../queue-page/queue-page";
-import { StringComponent } from "../string/string";
-import { SortingPage } from "../sorting-page/sorting-page";
-import { StackPage } from "../stack-page/stack-page";
-
-import style from "./app.module.css";
+import React from 'react';
+import logo from './logo.svg';
+import './App.css';
+import styles from './App.module.css';
 
 function App() {
   return (
-    <div className={style.app}>
-      <BrowserRouter>
-        <Switch>
-          <Route path="/" exact>
-            <MainPage />
-          </Route>
-          <Route path="/recursion">
-            <StringComponent />
-          </Route>
-          <Route path="/fibonacci">
-            <FibonacciPage />
-          </Route>
-          <Route path="/sorting">
-            <SortingPage />
-          </Route>
-          <Route path="/stack">
-            <StackPage />
-          </Route>
-          <Route path="/queue">
-            <QueuePage />
-          </Route>
-          <Route path="/list">
-            <ListPage />
-          </Route>
-        </Switch>
-      </BrowserRouter>
+    <div className={styles.App}>
+      <header className={styles.App_header}>
+        <img src={logo} className={styles.App_logo} alt="logo" />
+        <p>
+          Edit <code>src/App.tsx</code> and save to reload.
+        </p>
+        <a
+          className={styles.App_link}
+          href="https://reactjs.org"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Learn React
+        </a>
+      </header>
     </div>
   );
 }
