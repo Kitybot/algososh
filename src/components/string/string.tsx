@@ -121,7 +121,7 @@ export const StringComponent: React.FC = () => {
           text='Развернуть'
           onClick={handleClick}
           isLoader={isStringInvert}
-          disabled={isStringInvert || isInputEmpty}
+          disabled={isStringInvert}
         />
       </div>
       <div className={styles.stringsContainer}>
