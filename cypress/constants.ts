@@ -1,6 +1,6 @@
 import { circleId } from '../src/constants/element-captions'
 
-export const textInCircleSelector = `p[data-testid=${circleId}]`;
+export const textInCircleSelector = `${circleId}`;
 export const containerWithCircles = '#circlesContainer';
 
 export const circlDefaultColor = 'rgb(0, 50, 255)';
