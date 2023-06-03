@@ -14,10 +14,12 @@ export const StringComponent: React.FC = () => {
   const [mark, setMark] = useState<boolean>(false);
   const [isStringInvert, setIsStringInvert] = useState<boolean>(false);
   const [inputValue, setInputValue] = useState<string>('');
+  const [ isInputEmpty, setIsInputEmpty ] = useState<boolean>(true);
   
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     setInputValue(event.target.value);
   };
+  
 
   // разворот строки
   useEffect(() => {
@@ -112,6 +114,7 @@ export const StringComponent: React.FC = () => {
           onChange={handleChange}
         />
         <Button 
+          placeholder="Развернуть"
           text='Развернуть'
           onClick={handleClick}
           isLoader={isStringInvert}
