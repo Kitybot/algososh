@@ -1,0 +1,8 @@
+{
+    "compilerOptions": {
+      "target": "es5",
+      "lib": ["es5", "dom"],
+      "types": ["cypress", "node"]
+    },
+    "include": ["**/*.ts", "e2e/fibonacci-page.spec.cy.js", "e2e/list-page.cy.js", "e2e/queue-page.spec.cy.js", "e2e/string.spec.cy.ts", "e2e/stack-page.spec.cy.js"]
+}

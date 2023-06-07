@@ -61,6 +61,7 @@ export const FibonacciPage: React.FC = () => {
      <form className={styles.form} onSubmit={handleShowSequence}> 
         <div className={styles.input}>
           <Input 
+            placeholder="Введите число"
             type='number' 
             name='numberInput' 
             onChange={handleChangeValue} 
@@ -69,7 +70,7 @@ export const FibonacciPage: React.FC = () => {
             max={19} 
             value={value}/>
           <Button 
-            text={'Рассчитать'} 
+            text='Рассчитать'
             type='submit' 
             disabled={buttonState}
             isLoader={loader}/>
