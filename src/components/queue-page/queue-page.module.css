@@ -1,32 +1,41 @@
-.input {
-  margin: 0 auto;
-  gap: 12px;
+.controlContainer{
   display: flex;
-  align-items: flex-start;
-  justify-content: center;
-}
-.btnLeft {
-  margin-left: 52px;
-}
-.btn {
-  max-width: 205px;
-}
-.radio {
-  margin-left: 46px;
-}
-.btnNewArr {
-  margin-left: 80px;
-}
-.circle {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  list-style-type: none;
+  width: fit-content;
   margin: 0 auto;
-  margin-top: 120px;
-  padding: 0;
-  gap: 16px;
 }
-.inputStack {
-  max-width: 377px;
+
+.input{
+  min-width: 377px;
+  margin-right: 12px;
+}
+
+.buttonAdd{
+  min-width: 121px;
+  margin-right: 12px;
+}
+
+.buttonDelette{
+  min-width: 108px;
+  margin-right: 80px;
+}
+
+.buttonReset{
+  min-width: 119px;
+}
+
+.circlesContainer{
+  display: flex;
+  width: fit-content;
+  max-width: 944px;
+  flex-direction: row;
+  flex-flow: wrap;
+  margin: 50px auto 0;
+}
+
+.circle{
+  margin-right: 16px;
+}
+
+.circle:last-child{
+  margin-right: 0;
 }

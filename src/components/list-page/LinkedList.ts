@@ -1,168 +1,110 @@
-export class Node<T> {
-  value: T
-  next: Node<T> | null;
-  constructor(value: T, next?: Node<T>) {
-      this.value = value;
-      this.next = (next === undefined ? null : next)
-  }
-}
-
-interface ILinkedList<T> {
-  addTail: (el: T) => void;
-  getSize: () => number;
-  print?: () => void;
-}
+import { ILinkedList } from "../../types/componentsTypes";
+import { randomArr } from "../../utils/utils";
 
 export class LinkedListNode<T> {
   value: T;
   next: LinkedListNode<T> | null;
-  constructor(value: T, next: LinkedListNode<T> | null = null) {
+  constructor(value: T, next?: LinkedListNode<T> | null) {
     this.value = value;
-    this.next = next;
-  }
-}
+    this.next = (next === undefined ? null : next);
+  };
+};
+  
 export class LinkedList<T> implements ILinkedList<T> {
-  private head: Node<T> | null;
-  private size: number;
-  private headIndex: number;
-  private tailIndex: number;
-  constructor(values: T[]) {
-      this.head = null;
-      this.size = 0;
-      this.headIndex = 0;
-      this.tailIndex = 0;
-      if (values.length) {
-          this.appendArray(values)
-      }
-  }
+   head: LinkedListNode<T> | null;
+   size: number;
 
-  appendArray(values: T[]) {
-      values.forEach(value => this.addTail(value))
-  }
+  constructor(arrStr: T[]) { 
+    this.head = null;
+    this.size = randomArr().length;
+  };
 
-  addHead(element: T) {
+  append(value: T) {
+    const node = new LinkedListNode(value);
 
-      const node = new Node(element);
-      let current;
-      current = this.head
-      this.head = node;
-      this.head!.next = current;
-      this.tailIndex++;
-      this.size++;
-      return this
-  }
+    if(!this.head) {
+      this.head = node
+    };
+    let curr = this.head
+    while(curr.next) {
+      curr = curr.next
+    };
+    curr.next = node
+    this.size++
+  };
 
-  addTail(element: T) {
+  prepend(value: T) {
+    const node = new LinkedListNode(value);
 
-      const node = new Node(element);
-      let current;
+    if(!this.head) {
+      node.next = this.head;
+    };
+    this.head = node;
+    this.size++
+  };
 
-      if (this.head === null) {
-          this.head = node;
-          return this;
-      } else {
-          current = this.head;
-          while (current.next) {
-              current = current.next;
-          }
-          current.next = node;
-      }
-      this.size++;
-      this.tailIndex++;
+  deleteHead() {
+    if(!this.head) {
+      return;
+    } else {
+      this.head = this.head.next;
+      this.size--
+    };
+  };
 
-      return this;
-  }
-  addToIndex(element: T, index: number) {
-      const node = new Node(element);
-      let current;
-      let prev;
-      current = this.head;
-      prev = current;
-      if (!this.head) {
-          this.head = node;
-          this.tailIndex++;
-          this.size++
-          return this
-      }
+  deleteTail() {
+    this.deleteByIndex(this.size - 1);
+  };
 
-      if (index === 0) {
-          this.head = node;
-          this.head!.next = current;
-          this.tailIndex++;
-          this.size++
-          return this
-      }
-
-      for (let i = 0; i < index; i++) {
-          prev = current;
-          current = current!.next;
-      }
-
-      prev!.next = node;
-      node.next = current;
-      this.tailIndex++;
-      this.size++
-
-      return this
-  }
-
-  popToIndex(index: number) {
-      let current = this.head;
-      let prev = current;
-      if (!this.head) {
-          return this
-      }
-      if (index === 0) {
-          this.head = this.head!.next;
-          this.tailIndex--;
-          this.size--;
-          return this
-      }
-      for (let i = 0; i < index; i++) {
-          prev = current;
-          current = current!.next;
-      }
-      prev!.next = current!.next;
-      this.tailIndex--;
-      this.size--;
-      return this
-  }
-
-  popHead() {
-      if (!this.head) {
-          return this
-      } else {
-          this.head = this.head.next
-      }
-      this.tailIndex--;
-      this.size--;
-  }
-
-  popTail() {
-      if (!this.head) {
-          return this
-      } else {
-          let prev = this.head;
-          while (prev.next?.next) {
-              prev = prev.next
-          }
-          prev.next = null
-      }
-      this.size--;
-      this.tailIndex--;
-      return this;
-  }
-
-  print() {
+  deleteByIndex(index: number){
+    if (this.head && index >= 0 && index < this.size) { 
+      let idx = 0;
       let curr = this.head;
-      let res = [];
-      while (curr) {
-          res.push(`${curr.value}`);
+      let prev = curr;
+
+      if (index === 0) {
+        this.head = curr.next;
+      } else {
+        while (idx < index) {
+          idx++
+          if (curr.next) {
+            prev = curr;
+            curr = curr.next;
+          };
+        };
+        prev.next = curr.next;
+      };
+      this.size--
+    } else {
+      throw new Error ('Index is incorrect or line is empty');
+    };
+  };
+
+  addByIndex(value: T, index: number) {
+    const node = new LinkedListNode(value);
+
+    if (index === 0) {
+      node.next = this.head;
+      this.head = node;
+    } else {
+      let curr = this.head;
+      let currIndex = 0;
+      while(currIndex < index) {
+        currIndex++
+        if(curr?.next && currIndex !== index) {
           curr = curr.next;
-      }
-      return res;
-  }
-  getSize = () => this.size;
-  getHeadIndex = () => this.headIndex;
-  getTailIndex = () => this.tailIndex;
-}
+        };
+      };
+
+      if(curr?.next && currIndex === index) {
+        node.next = curr.next;
+        curr.next = node;
+      };
+    };
+    this.size++
+  };
+
+  getHead() {
+    return this.head;
+  };
+};

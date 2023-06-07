@@ -1,29 +1,36 @@
-interface IStack<T> {
-  push: (item: T) => T[];
-  pop: () => void;
-  getSize: () => number;
-
-}
-
+import { IStack } from "../../types/componentsTypes";
+  
 export class Stack<T> implements IStack<T> {
   private container: T[] = [];
 
-  constructor(container: T[]) {
-    this.container = container;
-  }
-
-
-  push = (item: T): T[] => {
+  push = (item: T): void => {
     this.container.push(item);
-    return this.container
   };
 
-
-  pop = (): T[] => {
-    if (this.getSize() >= 0) {
-      this.container.pop();
+  pop = (): void => {
+    if(this.size > 1){
+    this.container.pop();
+    } else {
+      return;
     }
-    return this.container
-  }
-  getSize = () => this.container.length;
-}
+  };
+
+  peak = () => {
+    if (this.size !== 0) {
+      return this.container[this.size - 1];
+    };
+    return undefined;
+  };
+
+  clear = (): void => {
+      this.container = [];
+  };
+
+  get size() {
+      return this.container.length;
+  };
+
+  get elements() {
+    return this.container;
+  };
+};

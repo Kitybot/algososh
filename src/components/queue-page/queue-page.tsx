@@ -1,114 +1,153 @@
-import React, { useState } from "react";
-import { delay } from "../../constants/utils";
+import React, { FormEvent, useMemo, useState } from "react";
+import styles from './queue-page.module.css';
+import { SolutionLayout } from "../ui/solution-layout/solution-layout";
+import { Input } from "../ui/input/input";
 import { Button } from "../ui/button/button";
 import { Circle } from "../ui/circle/circle";
-import { Input } from "../ui/input/input";
-import { SolutionLayout } from "../ui/solution-layout/solution-layout";
 import { Queue } from "./queue";
-
-
-import styles from './queue-page.module.css';
-
-const time = 500;
+import { IQueueSymbols } from "../../types/componentsTypes";
+import { ElementStates } from "../../types/element-states";
+import { setAnimation } from "../../utils/utils";
+import { SHORT_DELAY_IN_MS } from "../../utils/constants/delays";
+import { queueSize } from "../../utils/constants/element-captoins";
 
 export const QueuePage: React.FC = () => {
-  const size = 8;
-  const [queue] = useState(new Queue<string>(size))
-  const [inputValue, setInputValue] = useState<string>('');
-  const [stack, setStack] = useState<(string | undefined)[]>(queue.printQueue());
-  const [currentIndex, setCurrentIndex] = useState<number | null>(null);
-  const [tail, setTail] = useState<number>(queue.getTail());
-  const [head, setHead] = useState<number | null>(null);
-  const [isShownTimeout, setIsShownTimeout] = useState<string>('');
 
+  const queue = useMemo(() => new Queue<string>(queueSize), []);
 
-  const onChange = (e: React.FormEvent<HTMLInputElement>) => {
-    setInputValue(e.currentTarget.value);
-  }
+  const initialQueue: IQueueSymbols[] = Array.from({length: queueSize}, () => ({
+    symbol: '',
+    state: ElementStates.Default,
+    head: null,
+    tail: null,
+  }));
 
-  const addItem = async () => {
-    setIsShownTimeout('0')
-    setCurrentIndex(tail);
-    setInputValue('');
-    await delay(time);
-    queue.enqueue(inputValue);
-    setStack([...queue.printQueue()]);
-    setTail(queue.getTail());
-    setHead(queue.getHead())
-    setCurrentIndex(tail);
-    await delay(time)
-    setCurrentIndex(null);
-    setIsShownTimeout('')
-  }
-  const delItem = async () => {
-    setIsShownTimeout('1')
-    setCurrentIndex(head);
-    await delay(time);
+  const [num, setNumber] = useState('');
+  const [array, setArray] = useState<IQueueSymbols[]>(initialQueue);
+
+  const [buttonState, setButtonState] = useState(true);
+  const [addButton, setAddButton] = useState(true);
+  const [addLoader, setAddLoader] = useState(false);
+  const [deleteLoader, setDeleteLoader] = useState(false);
+  const [clearLoader, setClearLoader] = useState(false);
+
+  const handleChangeInput = (evt: FormEvent<HTMLInputElement>) => {
+    evt.preventDefault();
+    setNumber(evt.currentTarget.value);
+    evt.currentTarget.value ? setAddButton(false) : setAddButton(true);
+  };
+
+  const handleAddNumber = async () => {
+    if (queue.qLength >= queue.qSize) {
+      setAddButton(true)
+      return;
+    };
+    setButtonState(true);
+    setAddLoader(true);
+
+    queue.enqueue(num);
+    array[queue.getHead()].head = 'head';
+    if (queue.getTail() > 0) {
+      array[queue.getTail() - 1].tail = null;
+    };
+    array[queue.getTail()].state = ElementStates.Changing;
+    array[queue.getTail()].symbol = num;
+    array[queue.getTail()].tail = 'tail';
+    await setAnimation(SHORT_DELAY_IN_MS);
+    setArray([...array]);
+    await setAnimation(SHORT_DELAY_IN_MS);
+    setArray([...array]);
+    array[queue.getTail()].state = ElementStates.Default;
+
+    setNumber('');
+    setAddButton(true);
+    setButtonState(false);
+    setAddLoader(false);
+  };
+
+  const handleDeleteNumber = async () => {
+    setDeleteLoader(true);
+    setButtonState(true);
+
+    if (queue.getHead() === queue.getTail()) {
+      handleResetQueue();
+    };
     queue.dequeue();
-    setStack([...queue.printQueue()]);
-    setHead(queue.getHead())
-    setCurrentIndex(null);
-    setIsShownTimeout('')
-  }
-  const clear = async () => {
-    setIsShownTimeout('2')
-    queue.reset();
-    setStack([...queue.printQueue()]);
-    setHead(null);
-    setTail(queue.getTail());
-    await delay(time)
-    setIsShownTimeout('')
-  }
+    array[queue.getHead() - 1].head = null;
+    array[queue.getHead() - 1].symbol = '';
+    array[queue.getHead() - 1].state = ElementStates.Changing;
+    await setAnimation(SHORT_DELAY_IN_MS);
+    setArray([...array]);
+    array[queue.getHead()].head = 'head';
+    await setAnimation(SHORT_DELAY_IN_MS);
+    array[queue.getHead() - 1].state = ElementStates.Default;
+    setArray([...array]);
 
+    setDeleteLoader(false);
+    setButtonState(false);
+  };
+
+  const handleResetQueue = async () => {
+    setClearLoader(true);
+    setButtonState(true);
+
+    queue.clear();
+    setArray(initialQueue);
+    await setAnimation(SHORT_DELAY_IN_MS);
+
+    setClearLoader(false);
+  };
 
   return (
     <SolutionLayout title="Очередь">
-      <form className={styles.input} onSubmit={(e) => e.preventDefault()}>
-        <Input
-          isLimitText={true}
-          maxLength={4}
-          onChange={e => onChange(e)}
-          type="text" 
-          value={inputValue}
-          extraClass={`${styles.inputStack}`}
-        />
-        <Button
-          isLoader={isShownTimeout === '0'}
-          text='Добавить'
-          onClick={() => addItem()}
-          disabled={inputValue ? false : true}
-        />
-        <Button
-          isLoader={isShownTimeout === '1'}
-          text='Удалить'
-          onClick={delItem}
-          disabled={head === null ? true : head < tail ? false : true}
-        />
-        <Button
-          isLoader={isShownTimeout === '2'}
-          text='Очистить'
-          onClick={clear}
-          extraClass={`${styles.btnNewArr} ${styles.btn}`}
-          disabled={head === null ? true : false}
-        />
-      </form>
-      {stack &&
-        <ul className={styles.circle}>
+      <form className={styles.form} onSubmit={(e) => {
+        e.preventDefault();
+        handleAddNumber();
+        }}> 
+        <div className={styles.input}>
+          <Input 
+            isLimitText 
+            maxLength={4} 
+            name='numInput' 
+            value={num} 
+            onChange={handleChangeInput}/>
+          <Button 
+            text={'Добавить'} 
+            type='submit' 
+            disabled={addButton} 
+            isLoader={addLoader}/>
+          <Button 
+            text={'Удалить'} 
+            type='button' 
+            disabled={buttonState} 
+            onClick={handleDeleteNumber}
+            isLoader={deleteLoader}/>
+          <Button 
+            text={'Очистить'} 
+            type='reset' 
+            disabled={buttonState} 
+            onClick={handleResetQueue}
+            extraClass='ml-35'
+            isLoader={clearLoader}/>
+        </div>
+        <ul className={styles.list}>
 
-          {stack?.map((item, index: number) => {
-            return (
-              <li key={index}>< Circle
-                tail={tail <= head! ? '' : tail - 1 === index ? 'tail' : ''}
-                head={head === null ? '' : head === index ? 'head' : ''}
-                letter={item === null ? '' : item}
-                key={index}
-                index={index}
-                state={index === currentIndex ? 'changing' : 'default'} />
-              </li>
-            )
-          })}
+          { array && (
+            array.map((item, index) => {
+              return(
+                <li key={index}>
+                  <Circle 
+                    letter={item?.symbol} 
+                    index={index} 
+                    head={item.head} 
+                    tail={item.tail}
+                    state={item.state}/>
+                </li>
+              )
+            })
+          )}
+
         </ul>
-      }
+      </form>
     </SolutionLayout>
-  );
-};
+  )};

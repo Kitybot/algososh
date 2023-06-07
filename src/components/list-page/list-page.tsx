@@ -1,248 +1,326 @@
-import React, {useState } from "react";
-import { Button } from "../ui/button/button";
-import { Circle } from "../ui/circle/circle";
-import { Input } from "../ui/input/input";
-import { ArrowIcon } from "../ui/icons/arrow-icon";
-import { SolutionLayout } from "../ui/solution-layout/solution-layout";
+import React, { ChangeEvent, useMemo, useState } from "react";
 import styles from './list-page.module.css';
-import { delay } from "../../constants/utils";
+import { SolutionLayout } from "../ui/solution-layout/solution-layout";
+import { Input } from "../ui/input/input";
+import { Button } from "../ui/button/button";
+import { ElementStates } from "../../types/element-states";
+import { IListSymbols} from "../../types/componentsTypes";
+import { Circle } from "../ui/circle/circle";
+import { ArrowIcon } from "../ui/icons/arrow-icon";
 import { LinkedList } from "./LinkedList";
-
-
-const firstArr = ['0', '34', '8', '1'];
-const time = 500;
-
+import { setAnimation, randomArr } from "../../utils/utils";
+import { SHORT_DELAY_IN_MS } from "../../utils/constants/delays";
 
 export const ListPage: React.FC = () => {
-  const [list] = useState(new LinkedList<string>(firstArr));
-  const [listItems, setListItems] = useState<string[]>(firstArr);
-  const [inputValue, setInputValue] = useState<string>('');
-  const [inputIndex, setInputIndex] = useState<number>(NaN);
-  const [headSmallCircle, setHeadSmallCircle] = useState<number>(NaN);
-  const [tailSmallCircle, setTailSmallCircle] = useState<number>(NaN);
-  const [headIndex, setHeadIndex] = useState<number>(list.getHeadIndex());
-  const [tailIndex, setTailIndex] = useState<number>(list.getTailIndex());
-  const [colorSmall, setColorSmall] = useState<number>(NaN);
-  const [colorChanging, setColorChanging] = useState<number>(NaN);
-  const [delItem, setDelItem] = useState<number>(NaN);
-  const [loader, setLoader] = useState<number>(NaN);
 
-  const onChange = (e: React.FormEvent<HTMLInputElement>) => {
-    setInputValue(e.currentTarget.value);
-  }
-  const onChangeIndex = (e: React.FormEvent<HTMLInputElement>) => {
-    setInputIndex(Number(e.currentTarget.value));
-  }
+  const initialList: IListSymbols[] = randomArr().map(symbol => ({
+    symbol: symbol,
+    state: ElementStates.Default,
+    head: null,
+    tail: null,
+  }));
 
-  const addTail = async () => {
+  const list = useMemo(() => new LinkedList<string>(randomArr()), []);
 
-    setLoader(2);
-    setTailIndex(list.getTailIndex());
-    setHeadSmallCircle(tailIndex);
-    list.addTail(inputValue);
-    await delay(time);
-    setInputValue('');
-    setHeadSmallCircle(NaN);
-    setListItems(list.print());
-    setColorSmall(list.getTailIndex());
-    setTailIndex(list.getTailIndex())
-    await delay(time);
-    setColorSmall(NaN);
-    setLoader(NaN);
-  }
+  const [value, setValue] = useState(''); 
+  const [ind, setInd] = useState(''); 
+  const [array, setArray] = useState<IListSymbols[]>(initialList); 
 
-  const addHead = async () => {
-    setLoader(1);
-    setHeadSmallCircle(headIndex);
-    list.addHead(inputValue);
-    await delay(time)
-    setInputValue('');
-    setTailIndex(list.getTailIndex());
-    setHeadSmallCircle(NaN);
-    setListItems(list.print());
-    setColorSmall(list.getHeadIndex());
-    await delay(time);
-    setColorSmall(NaN);
-    setLoader(NaN);
-  }
+  const [addHeadLoader, setAddHeadLoader] = useState(false); 
+  const [addTailLoader, setAddTailLoader] = useState(false); 
+  const [deleteHeadLoader, setDeleteHeadLoader] = useState(false); 
+  const [deleteTailLoader, setDeleteTailLoader] = useState(false); 
 
-  const addToIndex = async () => {
-    setLoader(5);
-    list.addToIndex(inputValue, +inputIndex);
+  const [valueButtonState, setValueButtonState] = useState(true);
+  const [indButtonState, setIndButtonState] = useState(true);
 
-    for (let i = 0; i <= inputIndex; i++) {
-      await delay(time);
-      setColorChanging(i)
-      setHeadSmallCircle(i);
-    }
+  const [addByIdx, setAddByIdx] = useState(false); 
+  const [deleteByIdx, setDeleteByIdx] = useState(false); 
 
-    await delay(time);
-    setInputValue('');
-    setColorChanging(NaN)
-    setColorSmall(+inputIndex);
-    setTailIndex(list.getTailIndex());
-    setHeadSmallCircle(NaN)
-    setListItems(list.print());
-    await delay(time);
-    setColorSmall(NaN);
-    setLoader(NaN);
-  }
+  const handleChangeInputValue = (evt: ChangeEvent<HTMLInputElement>) => {
+    evt.preventDefault();
+    const value = evt.currentTarget.value;
+    value ? setValueButtonState(false) : setValueButtonState(true);
+    setValue(value);
+  };
 
-  const popToIndex = async () => {
-    setLoader(6);
-    list.popToIndex(+inputIndex);
-    for (let i = 0; i <= +inputIndex + 1; i++) {
-      setColorChanging(i)
-      await delay(time);
-    }
-    setTailSmallCircle(+inputIndex);
-    setDelItem(+inputIndex);
-    setColorChanging(+inputIndex);
-    await delay(time);
-    setInputValue('');
-    setColorChanging(NaN);
-    setTailSmallCircle(NaN)
-    setColorSmall(NaN);
-    setListItems(list.print());
-    setTailIndex(list.getTailIndex());
-    setDelItem(NaN);
-    setLoader(NaN);
-  }
+  const handleChangeInputInd = (evt: ChangeEvent<HTMLInputElement>) => {
+    evt.preventDefault();
+    const value = evt.currentTarget.value;
+    value ? setIndButtonState(false) : setIndButtonState(true);
+    const numValue = Number(evt.currentTarget.value);
+    if(numValue < 0 || numValue > array.length - 1) {
+      setIndButtonState(true);
+    };
+    setInd(value);
+  };
 
-  const popTail = async () => {
+  const handleAddHead = async () => {
+    setAddHeadLoader(true);
+    setValueButtonState(true);
 
-    setLoader(4);
-    setTailIndex(list.getTailIndex());
-    setTailSmallCircle(tailIndex);
-    list.popTail();
-    await delay(time);
-    setInputValue('');
-    setTailIndex(list.getTailIndex());
-    setTailSmallCircle(NaN);
-    setListItems(list.print());
-    setLoader(NaN);
-  }
-  const popHead = async () => {
+    array[0].head = null;
+    array[0].smallCircle = {
+      symbol: value,
+    };
+    setArray([...array]);
+    await setAnimation(SHORT_DELAY_IN_MS);
+    array[0].smallCircle = undefined;
 
-    setLoader(3);
-    setHeadIndex(list.getHeadIndex());
-    setTailSmallCircle(headIndex);
-    list.popHead();
-    await delay(time);
-    setInputValue('');
-    setHeadIndex(list.getHeadIndex());
-    setTailSmallCircle(NaN);
-    setListItems(list.print());
-    setTailIndex(list.getTailIndex());
-    setLoader(NaN);
-  }
+    list.prepend(value);
+    array.unshift({
+      symbol: value,
+      state: ElementStates.Modified,
+    });
+    setArray([...array]);
+    await setAnimation(SHORT_DELAY_IN_MS);
+    array[0].state = ElementStates.Default;
+    setArray([...array]);
 
-  const validationIndex = ((inputIndex! > list.getSize()) || (inputIndex! < 0)) ? true : false;
-  const validationInputIndex = inputIndex ? false : true;
-  const validationInputValue = inputValue ? false : true;
-  const validationLoader = (index: number) => {
-    if (loader && loader !== index) {
-      return true
+    setValue('');
+    setAddHeadLoader(false);
+    setValueButtonState(true);
+  };
+
+  const handleAddTail = async () => {
+    setAddTailLoader(true);
+    setValueButtonState(true);
+
+    array[array.length - 1].smallCircle = {
+      symbol: value,
+    };
+    setArray([...array]);
+    await setAnimation(SHORT_DELAY_IN_MS);
+    array[array.length - 1].smallCircle = undefined;
+
+    list.append(value);
+    array.push({
+      symbol: value,
+      state: ElementStates.Modified,
+    });
+    setArray([...array]);
+    await setAnimation(SHORT_DELAY_IN_MS);
+    array[array.length - 1].state = ElementStates.Default;
+    setArray([...array]);
+
+    setValue('');
+    setAddTailLoader(false);
+    setValueButtonState(true);
+  };
+
+  const handleDeleteHead = async() => {
+    setDeleteHeadLoader(true);
+    setValueButtonState(true);
+
+    if(!list.getHead()) {
+      throw new Error ('List is empty');
     } else {
-      return false
-    }
-  }
+      array[0].smallCircle = {
+        symbol: array[0].symbol,
+      };
+      array[0].symbol = '';
+      setArray([...array]);
+      await setAnimation(SHORT_DELAY_IN_MS);
+
+      list.deleteHead();
+      array.shift();
+    };
+    setArray([...array]);
+
+    setDeleteHeadLoader(false);
+    setValueButtonState(false);
+  };
+
+  const handleDeleteTail = async () => {
+    setDeleteTailLoader(true);
+    setValueButtonState(true);
+
+    if(!list.getHead()) {
+      throw new Error ('List is empty');
+    } else {
+      array[array.length - 1].smallCircle = {
+        symbol: array[array.length - 1].symbol,
+      };
+      array[array.length - 1].symbol = '';
+      setArray([...array]);
+      await setAnimation(SHORT_DELAY_IN_MS);
+
+      list.deleteTail();
+      array.pop();
+    };
+    setArray([...array]);
+
+    setDeleteTailLoader(false);
+    setValueButtonState(false);
+  };
+
+
+  const handleAddByIndex = async () => {
+    setAddByIdx(true);
+    setIndButtonState(true);
+    setValueButtonState(true);
+
+    let index = Number(ind);
+    list.addByIndex(value, index);
+    for(let i = 0; i < index; i++) {
+      array[i].state = ElementStates.Changing;
+      await setAnimation(SHORT_DELAY_IN_MS);
+      setArray([...array])
+    };
+    await setAnimation(SHORT_DELAY_IN_MS);
+
+    array[index].smallCircle = {
+      symbol: value,
+    };
+    setArray([...array]);
+    await setAnimation(SHORT_DELAY_IN_MS);
+
+    array[index].smallCircle = undefined;
+    array.splice(index, 0, { symbol: value, state: ElementStates.Modified});
+    setArray([...array]);
+    array.map((num: IListSymbols) => {
+      return num.state = ElementStates.Default;
+    });
+    await setAnimation(SHORT_DELAY_IN_MS);
+
+    setInd('');
+    setValue('');
+    setAddByIdx(false);
+    setIndButtonState(true);
+    setValueButtonState(true);
+  };
+
+  const handleDeleteByIndex = async () => {
+    setDeleteByIdx(true);
+    setIndButtonState(true);
+
+    let index = Number(ind);
+    list.deleteByIndex(index);
+    for(let i = 0; i < index; i++) {
+      array[i].state = ElementStates.Changing;
+      await setAnimation(SHORT_DELAY_IN_MS);
+      setArray([...array]);
+    };
+    await setAnimation(2000);
+
+    array[index].smallCircle = {
+      symbol: array[index].symbol,
+    };
+    array[index].symbol = '';  
+    setArray([...array]);
+    await setAnimation(SHORT_DELAY_IN_MS);
+
+    array[index].smallCircle = undefined;
+    array.splice(index, 1);
+    setArray([...array]);
+    array.map((num: IListSymbols) => {
+      return num.state = ElementStates.Default;
+    });
+    await setAnimation(SHORT_DELAY_IN_MS);
+    
+    setInd('');
+    setValue('');
+    setDeleteByIdx(false);
+    setIndButtonState(true);
+   };
 
   return (
     <SolutionLayout title="Связный список">
-      <form onSubmit={e => e.preventDefault()} className={styles.form}>
-        <Input
-          extraClass={styles.input}
-          maxLength={4}
-          isLimitText={true}
-          placeholder={'Введите значение'}
-          onChange={e => onChange(e)}
-          value={inputValue}
-        />
-        <Button
-          extraClass={styles.btn}
-          text={'Добавить в head'}
-          isLoader={loader === 1}
-          onClick={addHead}
-          disabled={validationInputValue || validationLoader(1)}
-        />
-        <Button
-          extraClass={styles.btn}
-          text={'Добавить в tail'}
-          isLoader={loader === 2}
-          onClick={addTail}
-          disabled={validationInputValue || validationLoader(2)}
-        />
-        <Button
-          extraClass={styles.btn}
-          text={'Удалить из head'}
-          isLoader={loader === 3}
-          onClick={popHead}
-          disabled={validationLoader(3) }
-        />
-        <Button
-          extraClass={styles.btn}
-          text={'Удалить из tail'}
-          isLoader={loader === 4}
-          onClick={popTail}
-          disabled={validationLoader(4)}
-        />
-      </form>
-      <form onSubmit={e => e.preventDefault()} className={`${styles.form} ${styles.formIndex}`}>
-        <Input
-          max={list.getSize()}
-          type='number'
-          isLimitText={true} extraClass={styles.input}
-          placeholder={'Введите индекс'}
-          onChange={e => onChangeIndex(e)}
-          value={inputIndex}
-        />
-        <Button
-          extraClass={styles.btnIndex}
-          text={'Добавить по индексу'}
-          onClick={addToIndex}
-          isLoader={loader === 5}
-          disabled={validationIndex || validationInputIndex || validationInputValue || validationLoader(5)}
-        />
-        <Button
-          extraClass={styles.btnIndex}
-          text={'Удалить по индексу'}
-          onClick={popToIndex}
-          isLoader={loader === 6}
-          disabled={validationIndex || validationInputIndex || validationLoader(6)}
-        />
+      <div> 
+        <div className={styles.set}>
+          <Input 
+            isLimitText={true} 
+            maxLength={4} 
+            placeholder={"Введите значение"}
+            extraClass={`${styles.input} mb-6`} 
+            value={value}
+            onChange={handleChangeInputValue}/>
+          <Button 
+            text={'Добавить в head'} 
+            type={'button'} 
+            onClick={handleAddHead}
+            extraClass={styles.buttonSmall}
+            isLoader={addHeadLoader}
+            disabled={valueButtonState}
+            id={'Добавить в head'}/>
+          <Button 
+            text={'Добавить в tail'} 
+            type={'button'} 
+            onClick={handleAddTail}
+            extraClass={styles.buttonSmall}
+            isLoader={addTailLoader}
+            disabled={valueButtonState}
+            id={'Добавить в tail'}/>
+          <Button 
+            text={'Удалить из head'} 
+            type={'button'} 
+            onClick={handleDeleteHead}
+            extraClass={styles.buttonSmall}
+            isLoader={deleteHeadLoader}
+            disabled={valueButtonState}
+            id={'Удалить из head'}/>
+          <Button 
+            text={'Удалить из tail'} 
+            type={'button'} 
+            onClick={handleDeleteTail}
+            extraClass={styles.buttonSmall}
+            isLoader={deleteTailLoader}
+            disabled={valueButtonState}
+            id={'Удалить из tail'}/>
+        </div>
+        <div className={styles.set}>
+          <Input 
+            isLimitText={false} 
+            placeholder={"Введите индекс"} 
+            value={ind}
+            extraClass={styles.input}
+            onChange={handleChangeInputInd}/>
+          <Button 
+            text={'Добавить по индексу'} 
+            type={'button'} 
+            onClick={handleAddByIndex}
+            extraClass={styles.buttonBig}
+            isLoader={addByIdx}
+            disabled={indButtonState}
+            id='Добавить по индексу'/>
+          <Button 
+            text={'Удалить по индексу'} 
+            type={'button'} 
+            onClick={handleDeleteByIndex}
+            extraClass={styles.buttonBig}
+            isLoader={deleteByIdx}
+            disabled={indButtonState}
+            id='Удалить по индексу'/>
+        </div>
+        <ul className={styles.list}>
 
-      </form>
-      {listItems &&
-        <ul className={styles.circle}>
+          { array && (
+            array.map((item, index) => {
+              return (
+                <li key={index} className={styles.circle}>
+                  { item.smallCircle && (
+                    <Circle 
+                    isSmall 
+                    extraClass={addTailLoader || addHeadLoader || addByIdx ? 
+                      styles.smallCircle :
+                      styles.smallCircleBottom}
+                    letter={item.smallCircle?.symbol}
+                    state={ElementStates.Changing}/>
+                  )}
+                  <Circle 
+                    state={item.state} 
+                    letter={item.symbol}
+                    head={index === 0 && item.smallCircle === undefined ? 'head' : ''}
+                    tail={index === array.length - 1 && item.smallCircle === undefined ? 'tail' : ''}
+                    index={index}/>
+                    <ArrowIcon />
+                </li>
+              )
+            })
+          )}
 
-          {listItems?.map((item, index) => {
-            return (
-              <li className={styles.circleItems} key={index}>
-                < Circle
-                  head={
-                    headSmallCircle === index ?
-                      <Circle state={'changing'} letter={inputValue} isSmall />
-                      : headIndex === index ? 'head' : ''
-                  }
-                  letter={delItem === index ? '' : item}
-                  key={index}
-                  index={index}
-                  state={colorChanging && colorChanging > index ? 'changing' : colorSmall === index ? 'modified' : 'default'}
-                  tail={tailSmallCircle === index ?
-                    <Circle state={'changing'} letter={item} isSmall />
-                    : tailIndex === index ? 'tail' : ''}
-                />
-                {
-                  (index < listItems.length - 1) &&
-                  < ArrowIcon />
-                }
-              </li>
-            )
-          })}
         </ul>
-      }
-
+      </div>
     </SolutionLayout>
-  )
-}  
+  );
+};

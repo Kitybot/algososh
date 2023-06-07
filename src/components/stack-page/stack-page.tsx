@@ -1,88 +1,131 @@
-import React, { useState } from "react";
+import React, { useState, FormEvent} from "react";
+import styles from './stack-page.module.css';
+import { SolutionLayout } from "../ui/solution-layout/solution-layout";
+import { Input } from "../ui/input/input";
 import { Button } from "../ui/button/button";
 import { Circle } from "../ui/circle/circle";
-import { Input } from "../ui/input/input";
-import { SolutionLayout } from "../ui/solution-layout/solution-layout";
 import { Stack } from "./stack";
-import styles from './stack-page.module.css';
+import { IStackSymbols } from "../../types/componentsTypes";
+import { ElementStates } from "../../types/element-states";
+import { setAnimation } from "../../utils/utils";
+import { SHORT_DELAY_IN_MS } from "../../utils/constants/delays";
 
 export const StackPage: React.FC = () => {
-  const [value, setValue] = useState<string>('');
-  let [array, setArray] = useState<any[]>([]);
-  const [isShownTimeout, setIsShownTimeout] = useState<string>('');
 
-  const st = new Stack<string>(array);
+  const stack = new Stack<string>();
 
-  const delay = (delay: number) => new Promise((resolve) => setInterval(resolve, delay));
+  const [value, setValue] = useState('');
+  const [array, setArray] = useState<IStackSymbols[]>([]);
 
+  const [addLoader, setAddLoader] = useState(false);
+  const [deleteLoader, setDeleteLoader] = useState(false);
+  const [clearLoader, setClearLoader] = useState(false);
+  const [buttonState, setButtonState] = useState(true); 
+  const [addButton, setAddButton] = useState(true);
 
-  const addItem = async(value: string) => {
-    
-    setIsShownTimeout('0')
-    await delay(500)
-    setArray([st?.push(value)]);
+  const handleChangeValue = (evt: FormEvent<HTMLInputElement>) => {
+    evt.preventDefault();
+    evt.currentTarget.value ? setAddButton(false) : setAddButton(true);
+    setValue(evt.currentTarget.value);
+  };
+
+  const handleAddToStack = async () => {
+    setAddLoader(true);
+    setButtonState(true)
+
+    stack.push(value);
+    array.push({
+      symbol: stack.peak() ? stack.peak() : '',
+      state: ElementStates.Changing
+    });
+
     setArray([...array]);
+    await setAnimation(SHORT_DELAY_IN_MS);
+    array[array.length - 1].state = ElementStates.Default;
+
+    setArray([...array]);
+    setAddLoader(false);
+    setButtonState(false);
     setValue('')
-    setIsShownTimeout('')
-  }
-  const delItem = async () => {
-    setIsShownTimeout('1')
-    await delay(500)
-    setArray([st?.pop()]);
-    setArray([...array]);
-    setIsShownTimeout('')
-  }
-  const clear = async() => {
-    setIsShownTimeout('2')
-    await delay(500)
-    setArray([array.splice(0, array.length)]);
-    setArray([...array]);
-    setIsShownTimeout('')
-  }
+  };
 
+  const handleDeleteNumber = async () => {
+    setDeleteLoader(true);
+    setButtonState(true);
+
+    array[array.length - 1].state = ElementStates.Changing;
+    await setAnimation(SHORT_DELAY_IN_MS);
+    
+    stack.pop();
+    array.pop();
+    setArray([...array])
+
+    setButtonState(false);
+    setDeleteLoader(false);
+  };
+
+  const handleClearStack = async () => {
+    setClearLoader(true);
+    setButtonState(true);
+
+    await setAnimation(SHORT_DELAY_IN_MS);
+    stack.clear();
+    setArray([]);
+
+    setClearLoader(false);
+  };
+  
   return (
     <SolutionLayout title="Стек">
-      <div className={styles.input}>
-        <Input
-          isLimitText={true}
-          maxLength={4}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
-          type="text" value={value}
-          extraClass={`${styles.inputStack}`}
-        />
-        <Button
-          text='Добавить'
-          onClick={() => addItem(value)}
-          disabled={value ? false : true}
-          isLoader={isShownTimeout === '0'}
-        />
-        <Button
-          isLoader={isShownTimeout === '1'}
-          text='Удалить'
-          onClick={delItem}
-          disabled={array.length ? false : true}
-        />
-        <Button
-          isLoader={isShownTimeout === '2'}
-          text='Очистить'
-          onClick={clear}
-          extraClass={`${styles.btnNewArr} ${styles.btn}`}
-          disabled={array.length ? false : true}
-        />
-      </div>
-      <ul className={styles.circle}>
-          {array?.map((item, index: number) => {
-            return (
-              <li key={index}>< Circle
-                head={array.length - 1 === index ? "top" : ''}
-                letter={item}
-                key={index}
-                index={index}
-                /* state={index === currentIndex ? 'changing' : 'default'} */ />
-              </li>
-            )
-          })}
+      <form className={styles.form} onSubmit={(evt) => {
+        evt.preventDefault();
+        handleAddToStack();
+        setAddButton(true)
+        }}> 
+        <div className={styles.input}>
+          <Input 
+            isLimitText 
+            maxLength={4} 
+            name='numInput' 
+            onChange={handleChangeValue} 
+            value={value}/>
+          <Button 
+            text={'Добавить'} 
+            type='submit' 
+            disabled={addButton} 
+            isLoader={addLoader}/>
+          <Button 
+            text={'Удалить'} 
+            type='button' 
+            disabled={buttonState} 
+            isLoader={deleteLoader}
+            onClick={handleDeleteNumber}/>
+          <Button 
+            text={'Очистить'} 
+            type='reset' 
+            extraClass='ml-35' 
+            disabled={buttonState}
+            isLoader={clearLoader} 
+            onClick={handleClearStack}/>
+        </div>
+        <ul className={styles.list}>
+
+          { array && (
+            array.map((item, index) => {
+              return(
+                <li key={index}>
+                  <Circle 
+                    letter={item?.symbol} 
+                    index={index} 
+                    state={item.state}
+                    head={array.length - 1 === index  ? 'top' : ''}/>
+                </li>
+              )
+            })
+          )}
+
         </ul>
+      </form>
     </SolutionLayout>
   );
 };

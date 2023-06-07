@@ -1,62 +1,88 @@
 interface IQueue<T> {
-  enqueue: (item: T) => void;
-  dequeue: () => void;
-  peak?: () => (T | null)[];
-  printQueue: () => Array<T | undefined>;
-  getTail: () => void;
-  getHead: () => void;
+  enqueue: (item: T) => void,
+  dequeue: () => void,
+  clear: () => void,
+  peak: () => T | null,
+  getHead: () => number,
+  getTail: () => number,
 }
-
+  
 export class Queue<T> implements IQueue<T> {
-  private container: (T | undefined)[] = [];
-  private head: number = 0 ;
-  private tail: number = 0;
+  private container: (T | null)[] = [];
+  private head = 0;
+  private tail = 0;
   private readonly size: number = 0;
   private length: number = 0;
 
   constructor(size: number) {
     this.size = size;
     this.container = Array(size);
-  }
-
-
-  enqueue = (item: T) => {
+  };
+  
+  enqueue = (value: T) => {
     if (this.length >= this.size) {
       throw new Error("Maximum length exceeded");
-    }
-    if (this.tail === this.size) {
-      return this
-    }
-    
-    this.container[this.tail % this.size] = item
-
-    this.tail++;
-    this.length++;
-
-  }
+    } else {
+        this.container[this.tail % this.size] = value;  
+        this.tail++
+        this.length++
+      };
+  };
 
   dequeue = () => {
-    if (this.head === this.size - 1) {
-      this.container[this.head % this.size] = undefined;
-      return this
-    } else if (!this.isEmpty()) {
-      this.container[this.head % this.size] = undefined;
-      this.head++;
-      this.length--;
-    }
-  }
+    if (this.isEmpty()) {
+      throw new Error("No elements in the queue");
+    } else if (this.head === this.size) {
+      this.head = 0;
+    } else {
+      this.container[this.head % this.size] = null;
+        this.head++
+        this.length--
+      };
+  };
 
-  reset = () => {
+  peak = (): T | null => {
+    if (this.isEmpty()) {
+      throw new Error("No elements in the queue");
+    }; 
+    if (!this.isEmpty()) {
+      return this.container[this.head];
+    };
+      return null;
+  };
+  
+  clear = () => {
+    this.container = [];
     this.head = 0;
     this.tail = 0;
-    this.container = Array(this.size);
-  }
-  getTail = () => this.tail;
-  getHead = () => this.head;
+    this.length = 0;
+  };
 
-  printQueue = (): (T | undefined)[] => {
-    return [...this.container];
-  }
+  getHead() {
+    if (this.isEmpty()) {
+      throw new Error('No elements in the queue');
+    }
+    return this.head;
+  };
+
+  getTail() {
+    if (this.isEmpty()) {
+      throw new Error('No elements in the queue');
+    }
+    return this.tail - 1;
+  };
 
   isEmpty = () => this.length === 0;
-}
+
+  get elements() {
+    return this.container;
+  };
+
+  get qLength() {
+    return this.length;
+  };
+
+  get qSize() {
+    return this.size;
+  };
+};

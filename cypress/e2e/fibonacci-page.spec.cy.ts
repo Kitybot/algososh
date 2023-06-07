@@ -1,4 +1,4 @@
-import {  defaultColor } from '../../src/utils/constants/delays';
+import {  defaultColor } from '../../src/utils/constants/element-captoins';
 
 describe('Fibonacci', () => {
 
