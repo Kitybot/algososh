@@ -128,7 +128,7 @@ describe('Компонент Стек', () => {
     cy.contains(buttonAddName).click();
     cy.contains(buttonClearName).should('be.enabled');
     cy.get(inputTextPlaceholder).type('с');
-    cy.contains(buttonAddName).click();
+    cy.contains(buttonAddName).click({force:true});
     cy.get(textInCircleSelector).should('have.length', '3');
     cy.contains(buttonClearName).click();
     cy.get(textInCircleSelector).should('have.length', '0');

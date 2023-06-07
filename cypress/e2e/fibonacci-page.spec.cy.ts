@@ -1,33 +1,33 @@
-describe('Компонент Последовательность Фибоначчи', () => {
+import {  defaultColor } from '../../src/utils/constants/delays';
+
+describe('Fibonacci', () => {
 
   beforeEach(() => {
-    cy.viewport(1280, 900);
-    cy.visit('localhost:3000');
-    cy.get('a[href*="fibonacci"]').click();
+    cy.visit('http://localhost:3000/fibonacci');
   });
 
-  it('Доступность кнопки Рассчитать', () => {
-    cy.get('input[placeholder="Введите число"]').should('be.empty');
-    cy.contains('Рассчитать').should('be.disabled');
-    cy.get('input[placeholder="Введите число"]').type('10');
-    cy.contains('Рассчитать').should('be.enabled');
+  it('should be disabled while input is empty', () => {
+    cy.get('input').should('be.empty')
+    cy.get('form').find('button').should('be.disabled')
   });
 
-  it('Правильная генерация чисел', () => {
-    const array = [];
-    cy.get('input[placeholder="Введите число"]').type('19');
-    cy.contains('Рассчитать').click();
-    cy.get('p[data-testid="text-in-circle"]', {timeout: 20000})
-      .should('have.length', '20')
-      .each((item, index) => {
-        if (index === 0 || index === 1) {
-          cy.wrap(item).should('have.text', '1');
-          array.push(1);
-        } else {
-          array.push(array[index -2] + array[index - 1]);
-          cy.wrap(item).should('have.text', `${array[index]}`);
-        }
-      });
+  it('should generate numbers correctly', () => {
+
+    cy.get('input').type('6');
+    cy.get('form').find('button').should('not.be.disabled').click();
+
+    cy.get('[class^="circle_circle"]').as('circles');
+
+    cy.get('@circles').should(($circles) => {
+      expect($circles).to.have.length(7);
+
+      expect($circles.eq(0)).to.contain('1').to.have.css('border-color', defaultColor);
+      expect($circles.eq(1)).to.contain('1').to.have.css('border-color', defaultColor);
+      expect($circles.eq(2)).to.contain('2').to.have.css('border-color', defaultColor);
+      expect($circles.eq(3)).to.contain('3').to.have.css('border-color', defaultColor);
+      expect($circles.eq(4)).to.contain('5').to.have.css('border-color', defaultColor);
+      expect($circles.eq(5)).to.contain('8').to.have.css('border-color', defaultColor);
+      expect($circles.eq(6)).to.contain('13').to.have.css('border-color', defaultColor);
+    });
   });
-  
 });

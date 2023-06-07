@@ -1,4 +1,4 @@
-import { StringComponent } from './string';
+import { ChildrenOfStringComponent } from './string';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import { circleId } from '../../constants/element-captions';
 
@@ -8,7 +8,7 @@ const buttonsName = 'Развернуть';
 describe('Корректность разворота строки.', () => {
 
   it('Строка с нечетным количеством символов', () => {
-    render(<StringComponent/>);
+    render(<ChildrenOfStringComponent/>);
     const input: HTMLInputElement = screen.getByPlaceholderText(inputsPlaceholder);
     input.value = 'Hallo';
     const button: HTMLButtonElement = screen.getByRole('button', {name: buttonsName});
@@ -36,7 +36,7 @@ describe('Корректность разворота строки.', () => {
   });
   
   it('Строка с четным количеством символов', () => {
-    render(<StringComponent/>);
+    render(<ChildrenOfStringComponent/>);
     const input: HTMLInputElement = screen.getByPlaceholderText(inputsPlaceholder);
     input.value = 'Pele';
     const button: HTMLButtonElement = screen.getByRole('button', {name: buttonsName});
@@ -62,7 +62,7 @@ describe('Корректность разворота строки.', () => {
   });
 
   it('Строка с одним символом.', () => {
-    render(<StringComponent/>);
+    render(<ChildrenOfStringComponent/>);
     const input: HTMLInputElement = screen.getByPlaceholderText(inputsPlaceholder);
     input.value = 'e';
     const button: HTMLButtonElement = screen.getByRole('button', {name: buttonsName});
@@ -82,7 +82,7 @@ describe('Корректность разворота строки.', () => {
   });
 
   it('Пустая строка.', () => {
-    render(<StringComponent/>);
+    render(<ChildrenOfStringComponent/>);
     const input: HTMLInputElement = screen.getByPlaceholderText(inputsPlaceholder);
     const button: HTMLButtonElement = screen.getByRole('button', {name: buttonsName});
     expect(input.value).toBe('');

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, ChangeEvent } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { SolutionLayout } from "../ui/solution-layout/solution-layout";
 import { Input } from "../ui/input/input";
 import styles from "./string.module.css";
@@ -8,18 +8,35 @@ import { nanoid } from "nanoid";
 import { ElementStates } from "../../types/element-states";
 import { DELAY_IN_MS } from "../../constants/delays";
 
-export const StringComponent: React.FC = () => {
+interface IStringElement{
+  string: string;
+  state: ElementStates;
+  key: string;
+}
+
+export const ChildrenOfStringComponent: React.FC = () => {
   // состояние для элементов строки
-  const [invertedString, setInvertedString] = useState<Array<{string: string; state: ElementStates; key: string}>>([]);
-  const [mark, setMark] = useState<boolean>(false);
-  const [isStringInvert, setIsStringInvert] = useState<boolean>(false);
-  const [inputValue, setInputValue] = useState<string>('');
+  const [ mark, setMark ] = useState<boolean>(false);
+  const [ invertedString, setInvertedString ] = useState<IStringElement[]>([]);
+  const [ isStringInvert, setIsStringInvert ] = useState<boolean>(false);
   const [ isInputEmpty, setIsInputEmpty ] = useState<boolean>(true);
-  
-  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setInputValue(event.target.value);
+
+  // поиск поля input в DOM
+  const input: React.MutableRefObject<HTMLInputElement | null> = useRef(null);
+  useEffect(() => {
+    input.current = document.querySelector('.input-in-container > .text_type_input');
+  }, []);
+
+  // отключение кнопки разворота строки, если в поле вводе нет значения, и наоборот
+  const controlInputValue = () => {
+    if (input.current) {
+      if (input.current.value.length === 0 && isInputEmpty === false) {
+        setIsInputEmpty(true);
+      } else if (input.current.value.length > 0 && isInputEmpty === true) {
+        setIsInputEmpty(false);
+      }
+    }
   };
-  
 
   // разворот строки
   useEffect(() => {
@@ -81,14 +98,16 @@ export const StringComponent: React.FC = () => {
   }, [mark]);
 
   // формирование из введенной в input строки массива элементов строки
-  const handleClick = () => {
-    const newString = inputValue.split('').map(item => ({
-      string: item,
-      state: ElementStates.Default,
-      key: nanoid(),
-    }));
-    setInvertedString(newString); 
-    setMark(!mark); 
+  const useTextInput = () => {
+    if (input.current !== null) {
+      const newString = input.current.value.split('').map(item => ({
+        string: item,
+        state: ElementStates.Default,
+        key: nanoid(),
+      }));
+      setInvertedString(newString);
+      setMark(!mark);
+    }
   };
   const stringInCircle = invertedString.length === 0 ? null : invertedString.map(item => {
     return (
@@ -102,28 +121,34 @@ export const StringComponent: React.FC = () => {
   });
 
   return (
-    <SolutionLayout title="Строка">
-
+    <>
       <div className={styles.elementsContainer}>
         <Input 
           maxLength={11}
           isLimitText={true}
           extraClass={`${styles.input} input-in-container`}
           disabled={isStringInvert}
-          value={inputValue} 
-          onChange={handleChange}
+          onChange={controlInputValue}
         />
         <Button 
-          placeholder="Развернуть"
           text='Развернуть'
-          onClick={handleClick}
+          onClick={useTextInput}
           isLoader={isStringInvert}
-          disabled={isStringInvert}
+          disabled={isStringInvert || isInputEmpty}
         />
       </div>
       <div className={styles.stringsContainer}>
         {stringInCircle && stringInCircle}
       </div>
+    </>
+  );
+};
+
+export const StringComponent: React.FC = () => {
+
+  return (
+    <SolutionLayout title="Строка">
+      <ChildrenOfStringComponent />
     </SolutionLayout>
   );
 };
