@@ -1,41 +1,22 @@
-.controlContainer{
-  display: flex;
-  width: fit-content;
-  margin: 0 auto;
+.form {
+  margin: auto;
+  width: 829px;
 }
-
-.input{
-  min-width: 377px;
-  margin-right: 12px;
-}
-
-.buttonAdd{
-  min-width: 121px;
-  margin-right: 12px;
-}
-
-.buttonDelette{
-  min-width: 108px;
-  margin-right: 80px;
-}
-
-.buttonReset{
-  min-width: 119px;
-}
-
-.circlesContainer{
-  display: flex;
-  width: fit-content;
-  max-width: 944px;
+.input {
+  display: flex; 
   flex-direction: row;
-  flex-flow: wrap;
-  margin: 50px auto 0;
+  justify-content: center;
+  gap: 12px;
 }
-
-.circle{
-  margin-right: 16px;
-}
-
-.circle:last-child{
-  margin-right: 0;
+.list {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  margin: 48px auto 0;
+  gap: 16px;
+  padding: 0; 
+  flex-wrap: wrap;
+  row-gap: 48px;
+  list-style-type: none;
+  width: 656px;
 }
